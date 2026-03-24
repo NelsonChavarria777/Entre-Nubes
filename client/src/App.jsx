@@ -1,28 +1,21 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Inicio from './pages/Inicio'
+import Productos from './pages/Productos'
+import Producto from './pages/Producto'
+import Contacto from './pages/Contacto'
+import Carrito from './pages/Carrito'
 
 function App() {
-  const [productos, setProductos] = useState([])
-
-  useEffect(() => {
-    fetch('http://localhost:3001/api/productos')
-      .then(res => res.json())
-      .then(data => setProductos(data))
-  }, [])
-
   return (
-    <div>
-      <h1>Smoke Shop</h1>
-      <div>
-        {productos.map(producto => (
-          <div key={producto.id}>
-            <h2>{producto.nombre}</h2>
-            <p>Precio: ${producto.precio}</p>
-            <p>Categoría: {producto.categoria}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/"          element={<Inicio />} />
+        <Route path="/productos" element={<Productos />} />
+        <Route path="/producto/:id" element={<Producto />} />
+        <Route path="/contacto"  element={<Contacto />} />
+        <Route path="/carrito"   element={<Carrito />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
