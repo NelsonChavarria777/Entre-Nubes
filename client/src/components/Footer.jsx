@@ -1,5 +1,6 @@
 import "./Footer.css";
 import LogoEntreNubes from "../assets/LogoEntreNubes.webp";
+import { useNavigate } from "react-router-dom";
 
 const WhatsappIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -20,7 +21,11 @@ const PhoneIcon = () => (
   </svg>
 );
 
-const navLinks = ["Inicio", "Productos", "Contacto"];
+const navLinks = [
+  { label: "Inicio", path: "/" },
+  { label: "Productos", path: "/productos" },
+  { label: "Contacto", path: "/contacto" },
+];
 
 export default function Footer({
   logoUrl   = LogoEntreNubes,
@@ -30,6 +35,7 @@ export default function Footer({
   year      = "2025",
   brandName = "Entre Nubes Smoke Shop",
 }) {
+  const navigate = useNavigate();
   return (
     <footer className="footer">
       <div className="footer-accent-line" />
@@ -53,7 +59,9 @@ export default function Footer({
           <div className="footer-nav">
             <p className="footer-col-label">Navegación</p>
             {navLinks.map(link => (
-              <button key={link} className="footer-link">{link}</button>
+              <button key={link.label} className="footer-link" onClick={() => navigate(link.path)}>
+                {link.label}
+              </button>
             ))}
           </div>
 

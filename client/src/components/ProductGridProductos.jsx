@@ -138,7 +138,7 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   const hasMore = shown.length < filtered.length;
 
   return (
-    <div className="pp-wrap">
+    <div id="productos-grid" className="pp-wrap">
 
       {/* Header */}
       <div className="pp-header">

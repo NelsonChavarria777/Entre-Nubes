@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./HeroBannerInicio.css";
 
 const slides = [
@@ -52,6 +53,7 @@ const slides = [
 const DURATION = 5000;
 
 export default function HeroBanner({ autoPlay = true }) {
+  const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
   const [key, setKey] = useState(0);
@@ -126,8 +128,7 @@ export default function HeroBanner({ autoPlay = true }) {
         <h1 className="slide-title" style={{ color: "#fff" }}>{slide.title}</h1>
         <p className="slide-sub">{slide.sub}</p>
         <div className="slide-cta hero-cta-wrap">
-          <button className="cta-main">Ver Productos</button>
-          <button className="cta-ghost">Saber más</button>
+          <button className="cta-main" onClick={() => navigate("/productos")}>Ver Productos</button>
         </div>
       </div>
 
