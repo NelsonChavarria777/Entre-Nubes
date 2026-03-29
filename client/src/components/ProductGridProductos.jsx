@@ -1,34 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./ProductGridProductos.css";
 
-const PRODUCTS = [
-  { id:1,  name:"Glass Pipe",      price:34.99, badge:"Nuevo",    badgeBg:"#D3FF0B", badgeColor:"#000", category:"Pipas",          image:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop&q=80" },
-  { id:2,  name:"Grinder Pro",     price:24.99, badge:"OFERTA",   badgeBg:"#FF3913", badgeColor:"#fff", category:"Molinillos",     image:"https://images.unsplash.com/photo-1585314540237-13cb89f0a4b9?w=600&h=400&fit=crop&q=80" },
-  { id:3,  name:"Rolling Papers",  price:4.99,  badge:"Popular",  badgeBg:"#8DC63F", badgeColor:"#fff", category:"Papeles",        image:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&q=80" },
-  { id:4,  name:"Vape Pen",        price:49.99, badge:"Premium",  badgeBg:"#000",    badgeColor:"#D3FF0B", category:"Vaporizadores", image:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop&q=80" },
-  { id:5,  name:"Herb Jar",        price:19.99, badge:"Nuevo",    badgeBg:"#D3FF0B", badgeColor:"#000", category:"Almacenamiento", image:"https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=600&h=400&fit=crop&q=80" },
-  { id:6,  name:"Lighter Set",     price:9.99,  badge:"Pack x3",  badgeBg:"#8DC63F", badgeColor:"#fff", category:"Encendedores",   image:"https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&h=400&fit=crop&q=80" },
-  { id:7,  name:"Bong Classic",    price:59.99, badge:"OFERTA",   badgeBg:"#FF3913", badgeColor:"#fff", category:"Pipas",          image:"https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?w=600&h=400&fit=crop&q=80" },
-  { id:8,  name:"Hemp Wraps",      price:6.99,  badge:"Oferta",   badgeBg:"#FF3913", badgeColor:"#fff", category:"Papeles",        image:"https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=400&fit=crop&q=80" },
-  { id:9,  name:"Dugout Box",      price:14.99, badge:"Nuevo",    badgeBg:"#D3FF0B", badgeColor:"#000", category:"Accesorios",     image:"https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=400&fit=crop&q=80" },
-  { id:10, name:"Ashtray Premium", price:12.99, badge:"Popular",  badgeBg:"#8DC63F", badgeColor:"#fff", category:"Accesorios",     image:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&h=400&fit=crop&q=80" },
-  { id:11, name:"Wax Vaporizer",   price:79.99, badge:"Premium",  badgeBg:"#000",    badgeColor:"#D3FF0B", category:"Vaporizadores", image:"https://images.unsplash.com/photo-1527515545081-5db817172677?w=600&h=400&fit=crop&q=80" },
-  { id:12, name:"Herb Grinder XL", price:32.99, badge:"OFERTA",   badgeBg:"#FF3913", badgeColor:"#fff", category:"Molinillos",     image:"https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&h=400&fit=crop&q=80" },
-  { id:13, name:"Bubbler Pipe",    price:44.99, badge:"Nuevo",    badgeBg:"#D3FF0B", badgeColor:"#000", category:"Pipas",          image:"https://images.unsplash.com/photo-1518155317743-a8ff43ea6a5f?w=600&h=400&fit=crop&q=80" },
-  { id:14, name:"Rolling Tray",    price:18.99, badge:"Popular",  badgeBg:"#8DC63F", badgeColor:"#fff", category:"Accesorios",     image:"https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&h=400&fit=crop&q=80" },
-  { id:15, name:"Torch Lighter",   price:22.99, badge:"Nuevo",    badgeBg:"#D3FF0B", badgeColor:"#000", category:"Encendedores",   image:"https://images.unsplash.com/photo-1558618047-f4e90e8de67b?w=600&h=400&fit=crop&q=80" },
-  { id:16, name:"Smell Proof Bag", price:29.99, badge:"OFERTA",   badgeBg:"#FF3913", badgeColor:"#fff", category:"Almacenamiento", image:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=400&fit=crop&q=80" },
-  { id:17, name:"King Size Papers",price:3.99,  badge:"Pack x5",  badgeBg:"#8DC63F", badgeColor:"#fff", category:"Papeles",        image:"https://images.unsplash.com/photo-1588421357574-87938a86fa28?w=600&h=400&fit=crop&q=80" },
-  { id:18, name:"Nectar Collector",price:38.99, badge:"Premium",  badgeBg:"#000",    badgeColor:"#D3FF0B", category:"Vaporizadores", image:"https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=600&h=400&fit=crop&q=80" },
-  { id:19, name:"4-Part Grinder",  price:27.99, badge:"Popular",  badgeBg:"#8DC63F", badgeColor:"#fff", category:"Molinillos",     image:"https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=600&h=400&fit=crop&q=80" },
-  { id:20, name:"Glass Bong XL",   price:89.99, badge:"Premium",  badgeBg:"#000",    badgeColor:"#D3FF0B", category:"Pipas",         image:"https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=600&h=400&fit=crop&q=80" },
-  { id:21, name:"Stash Box",       price:36.99, badge:"Nuevo",    badgeBg:"#D3FF0B", badgeColor:"#000", category:"Almacenamiento", image:"https://images.unsplash.com/photo-1564419320461-6870880221ad?w=600&h=400&fit=crop&q=80" },
-  { id:22, name:"Blunt Wraps",     price:5.99,  badge:"Pack x10", badgeBg:"#8DC63F", badgeColor:"#fff", category:"Papeles",        image:"https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop&q=80" },
-  { id:23, name:"Dab Pen",         price:67.99, badge:"OFERTA",   badgeBg:"#FF3913", badgeColor:"#fff", category:"Vaporizadores",  image:"https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=600&h=400&fit=crop&q=80" },
-  { id:24, name:"Hemp Wick",       price:7.99,  badge:"Nuevo",    badgeBg:"#D3FF0B", badgeColor:"#000", category:"Encendedores",   image:"https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600&h=400&fit=crop&q=80" },
-];
-
-const CATEGORIES   = ["Todas", ...Array.from(new Set(PRODUCTS.map(p => p.category)))];
 const SORT_OPTIONS = [
   { value:"default",    label:"Destacados" },
   { value:"price-asc",  label:"Precio: menor a mayor" },
@@ -117,6 +89,9 @@ function ListCard({ product }) {
 }
 
 export default function ProductPage({ title = "Todos los Productos" }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState(null);
   const [query, setQuery]       = useState("");
   const [category, setCategory] = useState("Todas");
   const [sort, setSort]         = useState("default");
@@ -124,7 +99,16 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   const [page, setPage]         = useState(1);
   const PER_PAGE = 24;
 
-  let filtered = PRODUCTS.filter(p => {
+  useEffect(() => {
+    fetch("http://localhost:3001/api/productos")
+      .then(res => res.json())
+      .then(data => { setProducts(data); setLoading(false); })
+      .catch(() => { setError("No se pudo cargar los productos"); setLoading(false); });
+  }, []);
+
+  const CATEGORIES = ["Todas", ...Array.from(new Set(products.map(p => p.category)))];
+
+  let filtered = products.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(query.toLowerCase());
     const matchCat    = category === "Todas" || p.category === category;
     return matchSearch && matchCat;
@@ -137,10 +121,25 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   const shown   = filtered.slice(0, page * PER_PAGE);
   const hasMore = shown.length < filtered.length;
 
-  return (
-    <div id="productos-grid" className="pp-wrap">
+  if (loading) return (
+    <div className="pp-wrap">
+      <div className="pp-empty">
+        <p className="pp-empty-title">Cargando productos...</p>
+      </div>
+    </div>
+  );
 
-      {/* Header */}
+  if (error) return (
+    <div className="pp-wrap">
+      <div className="pp-empty">
+        <p className="pp-empty-title" style={{ color:"#FF3913" }}>{error}</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="pp-wrap">
+
       <div className="pp-header">
         <div>
           <p className="pp-label">Catálogo completo</p>
@@ -149,7 +148,6 @@ export default function ProductPage({ title = "Todos los Productos" }) {
         <span className="pp-count">{filtered.length} producto{filtered.length !== 1 ? "s" : ""}</span>
       </div>
 
-      {/* Toolbar */}
       <div className="pp-toolbar">
         <div className="pp-search-wrap">
           <SearchIcon />
@@ -173,7 +171,6 @@ export default function ProductPage({ title = "Todos los Productos" }) {
         </div>
       </div>
 
-      {/* Mobile pills */}
       <div className="pp-pills">
         {CATEGORIES.map(c => (
           <button key={c} className={`pp-pill${category === c ? " active" : ""}`}
@@ -181,14 +178,12 @@ export default function ProductPage({ title = "Todos los Productos" }) {
         ))}
       </div>
 
-      {/* Mobile sort */}
       <div className="pp-mobile-sort">
         <select className="pp-select" style={{ width:"100%", height:"44px" }} value={sort} onChange={e => setSort(e.target.value)}>
           {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>
 
-      {/* Products */}
       {filtered.length === 0 ? (
         <div className="pp-empty">
           <div style={{ fontSize:"40px", marginBottom:"12px" }}>🔍</div>
@@ -205,7 +200,6 @@ export default function ProductPage({ title = "Todos los Productos" }) {
         </div>
       )}
 
-      {/* Load more */}
       {hasMore && (
         <div className="pp-load-more">
           <button className="pp-load-btn" onClick={() => setPage(pg => pg + 1)}>

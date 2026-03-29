@@ -1,22 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./ProductGridInicio.css";
-
-const products = [
-  { id: 1, name: "Glass Pipe", price: "$34.99", badge: "Nuevo", badgeBg: "#D3FF0B", badgeColor: "#000", category: "Pipas", image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&q=80" },
-  { id: 2, name: "Grinder Pro", price: "$24.99", badge: "Oferta", badgeBg: "#FF3913", badgeColor: "#fff", category: "Molinillos", image: "https://images.unsplash.com/photo-1585314540237-13cb89f0a4b9?w=400&h=300&fit=crop&q=80" },
-  { id: 3, name: "Rolling Papers", price: "$4.99", badge: "Popular", badgeBg: "#8DC63F", badgeColor: "#fff", category: "Papeles", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&q=80" },
-  { id: 4, name: "Vape Pen", price: "$49.99", badge: "Premium", badgeBg: "#000", badgeColor: "#D3FF0B", category: "Vaporizadores", image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&q=80" },
-  { id: 5, name: "Herb Jar", price: "$19.99", badge: "Nuevo", badgeBg: "#D3FF0B", badgeColor: "#000", category: "Almacenamiento", image: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400&h=300&fit=crop&q=80" },
-  { id: 6, name: "Lighter Set", price: "$9.99", badge: "Pack x3", badgeBg: "#8DC63F", badgeColor: "#fff", category: "Encendedores", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=300&fit=crop&q=80" },
-  { id: 7, name: "Bong Classic", price: "$59.99", badge: "Top", badgeBg: "#FF3913", badgeColor: "#fff", category: "Pipas", image: "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?w=400&h=300&fit=crop&q=80" },
-  { id: 8, name: "Hemp Wraps", price: "$6.99", badge: "Oferta", badgeBg: "#FF3913", badgeColor: "#fff", category: "Papeles", image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=400&h=300&fit=crop&q=80" },
-  { id: 9, name: "Dugout Box", price: "$14.99", badge: "Nuevo", badgeBg: "#D3FF0B", badgeColor: "#000", category: "Accesorios", image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop&q=80" },
-  { id: 10, name: "Ashtray Premium", price: "$12.99", badge: "Popular", badgeBg: "#8DC63F", badgeColor: "#fff", category: "Accesorios", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop&q=80" },
-  { id: 11, name: "Wax Vaporizer", price: "$79.99", badge: "Premium", badgeBg: "#000", badgeColor: "#D3FF0B", category: "Vaporizadores", image: "https://images.unsplash.com/photo-1527515545081-5db817172677?w=400&h=300&fit=crop&q=80" },
-  { id: 12, name: "Herb Grinder XL", price: "$32.99", badge: "Oferta", badgeBg: "#FF3913", badgeColor: "#fff", category: "Molinillos", image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=400&h=300&fit=crop&q=80" },
-];
-
-const categories = ["Todas", ...Array.from(new Set(products.map(p => p.category)))];
 
 const CartIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -52,7 +35,7 @@ function Card({ product }) {
       <div className="pc-info">
         <p className="pc-category">{product.category}</p>
         <h3 className="pc-name">{product.name}</h3>
-        <span className="pc-price">{product.price}</span>
+        <span className="pc-price">${product.price.toFixed(2)}</span>
       </div>
       <div className="pc-divider" />
       <button className="pc-btn" onClick={handleAdd}>
@@ -72,34 +55,61 @@ function Card({ product }) {
 }
 
 export default function ProductGrid({ title = "Nuestros Productos" }) {
-  const [query, setQuery] = useState("");
+  const [products, setProducts] = useState([]);
+  const [query, setQuery]       = useState("");
   const [category, setCategory] = useState("Todas");
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState(null);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/productos")
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data.slice(0, 12));
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("No se pudo cargar los productos");
+        setLoading(false);
+      });
+  }, []);
+
+  const categories = ["Todas", ...Array.from(new Set(products.map(p => p.category)))];
 
   const filtered = products.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(query.toLowerCase());
-    const matchCat = category === "Todas" || p.category === category;
+    const matchCat    = category === "Todas" || p.category === category;
     return matchSearch && matchCat;
   });
 
+  if (loading) return (
+    <div className="section-wrap">
+      <div style={{ textAlign:"center", padding:"60px 0" }}>
+        <p style={{ fontFamily:"'Permanent Marker', cursive", fontSize:"22px", color:"#ccc" }}>Cargando productos...</p>
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="section-wrap">
+      <div style={{ textAlign:"center", padding:"60px 0" }}>
+        <p style={{ fontFamily:"'Permanent Marker', cursive", fontSize:"22px", color:"#FF3913" }}>{error}</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="section-wrap">
-      {/* Header */}
       <div className="section-header">
         <p className="section-label">Catálogo</p>
         <h2 className="section-title">{title}</h2>
       </div>
 
-      {/* Search + select */}
       <div className="filter-bar">
         <div className="search-wrap">
           <SearchIcon />
-          <input
-            className="search-input"
-            type="text"
-            placeholder="Buscar producto..."
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-          />
+          <input className="search-input" type="text" placeholder="Buscar producto..."
+            value={query} onChange={e => setQuery(e.target.value)} />
           {query && <button className="clear-btn" onClick={() => setQuery("")}>✕</button>}
         </div>
         <div className="select-wrap">
@@ -110,7 +120,6 @@ export default function ProductGrid({ title = "Nuestros Productos" }) {
         <span className="results-count">{filtered.length} producto{filtered.length !== 1 ? "s" : ""}</span>
       </div>
 
-      {/* Mobile pills */}
       <div className="cat-pills">
         {categories.map(c => (
           <button key={c} className={`cat-pill${category === c ? " active" : ""}`} onClick={() => setCategory(c)}>
@@ -119,14 +128,13 @@ export default function ProductGrid({ title = "Nuestros Productos" }) {
         ))}
       </div>
 
-      {/* Grid */}
       {filtered.length > 0 ? (
         <div className="product-grid">
           {filtered.map(p => <Card key={p.id} product={p} />)}
         </div>
       ) : (
         <div className="no-results">
-          <div style={{ fontSize: "40px", marginBottom: "12px" }}>🔍</div>
+          <div style={{ fontSize:"40px", marginBottom:"12px" }}>🔍</div>
           <p className="no-results-title">Sin resultados</p>
           <p className="no-results-sub">Intenta con otro nombre o categoría</p>
         </div>
