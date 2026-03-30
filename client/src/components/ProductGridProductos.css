@@ -105,3 +105,102 @@
 @media (max-width: 320px) {
   .pp-grid { grid-template-columns: 1fr; }
 }
+
+/* =============================================
+   PAGINACIÓN — agregar al final de ProductGridProductos.css
+   ============================================= */
+
+.pp-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 0 16px;
+}
+
+.pp-page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pp-page-num {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-page-num:hover:not(.active) {
+  border-color: #8DC63F;
+  background: #f9fafb;
+  color: #111;
+}
+
+.pp-page-num.active {
+  background: #8DC63F;
+  border-color: #8DC63F;
+  color: #fff;
+  font-weight: 600;
+  cursor: default;
+}
+
+.pp-page-arrow {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.pp-page-arrow:hover:not(:disabled) {
+  border-color: #8DC63F;
+  background: #f9fafb;
+  color: #111;
+}
+
+.pp-page-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pp-page-dots {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 14px;
+  user-select: none;
+}
+
+@media (max-width: 480px) {
+  .pp-page-num,
+  .pp-page-arrow {
+    min-width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+  .pp-pagination {
+    gap: 4px;
+  }
+}
+
+  

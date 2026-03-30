@@ -34,6 +34,16 @@ const CheckIcon = () => (
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
+const ChevronLeftIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+);
+const ChevronRightIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6"/>
+  </svg>
+);
 
 function AddButton({ type }) {
   const [added, setAdded] = useState(false);
@@ -88,6 +98,67 @@ function ListCard({ product }) {
   );
 }
 
+// Genera el array de páginas con "..." cuando hay muchas
+function getPageNumbers(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages = [];
+  if (current <= 4) {
+    pages.push(1, 2, 3, 4, 5, "...", total);
+  } else if (current >= total - 3) {
+    pages.push(1, "...", total - 4, total - 3, total - 2, total - 1, total);
+  } else {
+    pages.push(1, "...", current - 1, current, current + 1, "...", total);
+  }
+  return pages;
+}
+
+function Pagination({ page, totalPages, onPageChange }) {
+  if (totalPages <= 1) return null;
+
+  const pages = getPageNumbers(page, totalPages);
+
+  return (
+    <div className="pp-pagination">
+      <button
+        className="pp-page-arrow"
+        onClick={() => onPageChange(page - 1)}
+        disabled={page === 1}
+        aria-label="Página anterior"
+      >
+        <ChevronLeftIcon />
+      </button>
+
+      <div className="pp-page-numbers">
+        {pages.map((p, i) =>
+          p === "..." ? (
+            <span key={`dots-${i}`} className="pp-page-dots">…</span>
+          ) : (
+            <button
+              key={p}
+              className={`pp-page-num${page === p ? " active" : ""}`}
+              onClick={() => onPageChange(p)}
+              aria-label={`Página ${p}`}
+              aria-current={page === p ? "page" : undefined}
+            >
+              {p}
+            </button>
+          )
+        )}
+      </div>
+
+      <button
+        className="pp-page-arrow"
+        onClick={() => onPageChange(page + 1)}
+        disabled={page === totalPages}
+        aria-label="Página siguiente"
+      >
+        <ChevronRightIcon />
+      </button>
+    </div>
+  );
+}
+
 export default function ProductPage({ title = "Todos los Productos" }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -97,7 +168,7 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   const [sort, setSort]         = useState("default");
   const [view, setView]         = useState("grid");
   const [page, setPage]         = useState(1);
-  const PER_PAGE = 24;
+  const PER_PAGE = 20;
 
   useEffect(() => {
     fetch("http://localhost:3001/api/productos")
@@ -118,8 +189,20 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   if (sort === "price-desc") filtered = [...filtered].sort((a,b) => b.price - a.price);
   if (sort === "name")       filtered = [...filtered].sort((a,b) => a.name.localeCompare(b.name));
 
-  const shown   = filtered.slice(0, page * PER_PAGE);
-  const hasMore = shown.length < filtered.length;
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  const shown = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  // Al cambiar filtros/búsqueda, volver a página 1
+  const handleSearch = (val) => { setQuery(val); setPage(1); };
+  const handleCategory = (val) => { setCategory(val); setPage(1); };
+  const handleSort = (val) => { setSort(val); setPage(1); };
+
+  // Al cambiar de página, scroll suave hacia arriba del grid
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    const el = document.querySelector(".pp-wrap");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (loading) return (
     <div className="pp-wrap">
@@ -152,16 +235,16 @@ export default function ProductPage({ title = "Todos los Productos" }) {
         <div className="pp-search-wrap">
           <SearchIcon />
           <input className="pp-search-input" type="text" placeholder="Buscar producto..."
-            value={query} onChange={e => { setQuery(e.target.value); setPage(1); }} />
-          {query && <button className="pp-clear-btn" onClick={() => setQuery("")}>✕</button>}
+            value={query} onChange={e => handleSearch(e.target.value)} />
+          {query && <button className="pp-clear-btn" onClick={() => handleSearch("")}>✕</button>}
         </div>
         <div className="pp-select-wrap hide-mobile">
-          <select className="pp-select" value={category} onChange={e => { setCategory(e.target.value); setPage(1); }}>
+          <select className="pp-select" value={category} onChange={e => handleCategory(e.target.value)}>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div className="pp-sort-wrap hide-mobile">
-          <select className="pp-select" value={sort} onChange={e => setSort(e.target.value)}>
+          <select className="pp-select" value={sort} onChange={e => handleSort(e.target.value)}>
             {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
@@ -174,12 +257,12 @@ export default function ProductPage({ title = "Todos los Productos" }) {
       <div className="pp-pills">
         {CATEGORIES.map(c => (
           <button key={c} className={`pp-pill${category === c ? " active" : ""}`}
-            onClick={() => { setCategory(c); setPage(1); }}>{c}</button>
+            onClick={() => handleCategory(c)}>{c}</button>
         ))}
       </div>
 
       <div className="pp-mobile-sort">
-        <select className="pp-select" style={{ width:"100%", height:"44px" }} value={sort} onChange={e => setSort(e.target.value)}>
+        <select className="pp-select" style={{ width:"100%", height:"44px" }} value={sort} onChange={e => handleSort(e.target.value)}>
           {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>
@@ -200,13 +283,14 @@ export default function ProductPage({ title = "Todos los Productos" }) {
         </div>
       )}
 
-      {hasMore && (
-        <div className="pp-load-more">
-          <button className="pp-load-btn" onClick={() => setPage(pg => pg + 1)}>
-            Ver más productos ({filtered.length - shown.length} restantes)
-          </button>
-        </div>
+      {filtered.length > PER_PAGE && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       )}
+
     </div>
   );
 }
