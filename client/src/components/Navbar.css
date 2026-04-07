@@ -3,8 +3,8 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.navbar-wrapper { width: 100%; position: relative; font-family: 'Permanent Marker', cursive; }
-.navbar { background: #8DC63F; border-bottom: 1px solid rgba(0,0,0,0.12); position: relative; }
+.navbar-wrapper { width: 100%; position: sticky; top: 0; z-index: 100; font-family: 'Permanent Marker', cursive; }
+.navbar { background: #8DC63F; border-bottom: 1px solid rgba(0,0,0,0.12); position: sticky; top: 0; z-index: 100; }
 .nav-inner { padding: 0 48px; display: flex; align-items: center; justify-content: space-between; height: 96px; }
 
 /* Logo */
