@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ProductGridProductos.css";
 
 const SORT_OPTIONS = [
@@ -60,8 +61,9 @@ function AddButton({ type }) {
 }
 
 function GridCard({ product }) {
+  const navigate = useNavigate();
   return (
-    <div className="pp-card card-appear">
+    <div className="pp-card card-appear" onClick={() => navigate(`/producto/${product.id}`)}>
       <div className="pp-card-img-wrap">
         <img src={product.image} alt={product.name} className="pp-card-img" draggable={false} />
         <div className="pp-badge" style={{ background: product.badgeBg, color: product.badgeColor }}>{product.badge}</div>
@@ -78,8 +80,9 @@ function GridCard({ product }) {
 }
 
 function ListCard({ product }) {
+  const navigate = useNavigate();
   return (
-    <div className="pp-list-card card-appear">
+    <div className="pp-list-card card-appear" onClick={() => navigate(`/producto/${product.id}`)}>
       <div className="pp-list-img-wrap">
         <img src={product.image} alt={product.name} className="pp-list-img" draggable={false} />
         <div className="pp-badge" style={{ background: product.badgeBg, color: product.badgeColor }}>{product.badge}</div>
@@ -98,10 +101,8 @@ function ListCard({ product }) {
   );
 }
 
-// Genera el array de páginas con "..." cuando hay muchas
 function getPageNumbers(current, total) {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-
   const pages = [];
   if (current <= 4) {
     pages.push(1, 2, 3, 4, 5, "...", total);
@@ -115,44 +116,24 @@ function getPageNumbers(current, total) {
 
 function Pagination({ page, totalPages, onPageChange }) {
   if (totalPages <= 1) return null;
-
   const pages = getPageNumbers(page, totalPages);
-
   return (
     <div className="pp-pagination">
-      <button
-        className="pp-page-arrow"
-        onClick={() => onPageChange(page - 1)}
-        disabled={page === 1}
-        aria-label="Página anterior"
-      >
+      <button className="pp-page-arrow" onClick={() => onPageChange(page - 1)} disabled={page === 1}>
         <ChevronLeftIcon />
       </button>
-
       <div className="pp-page-numbers">
         {pages.map((p, i) =>
           p === "..." ? (
             <span key={`dots-${i}`} className="pp-page-dots">…</span>
           ) : (
-            <button
-              key={p}
-              className={`pp-page-num${page === p ? " active" : ""}`}
-              onClick={() => onPageChange(p)}
-              aria-label={`Página ${p}`}
-              aria-current={page === p ? "page" : undefined}
-            >
+            <button key={p} className={`pp-page-num${page === p ? " active" : ""}`} onClick={() => onPageChange(p)}>
               {p}
             </button>
           )
         )}
       </div>
-
-      <button
-        className="pp-page-arrow"
-        onClick={() => onPageChange(page + 1)}
-        disabled={page === totalPages}
-        aria-label="Página siguiente"
-      >
+      <button className="pp-page-arrow" onClick={() => onPageChange(page + 1)} disabled={page === totalPages}>
         <ChevronRightIcon />
       </button>
     </div>
@@ -171,7 +152,7 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   const PER_PAGE = 20;
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/productos")
+    fetch(`${import.meta.env.VITE_API_URL}/api/productos`)
       .then(res => res.json())
       .then(data => { setProducts(data); setLoading(false); })
       .catch(() => { setError("No se pudo cargar los productos"); setLoading(false); });
@@ -190,18 +171,14 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   if (sort === "name")       filtered = [...filtered].sort((a,b) => a.name.localeCompare(b.name));
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const shown = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const shown      = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  // Al cambiar filtros/búsqueda, volver a página 1
-  const handleSearch = (val) => { setQuery(val); setPage(1); };
+  const handleSearch   = (val) => { setQuery(val);    setPage(1); };
   const handleCategory = (val) => { setCategory(val); setPage(1); };
-  const handleSort = (val) => { setSort(val); setPage(1); };
-
-  // Al cambiar de página, scroll suave hacia arriba del grid
+  const handleSort     = (val) => { setSort(val);     setPage(1); };
   const handlePageChange = (newPage) => {
     setPage(newPage);
-    const el = document.querySelector(".pp-wrap");
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelector(".pp-wrap")?.scrollIntoView({ behavior:"smooth", block:"start" });
   };
 
   if (loading) return (
@@ -284,11 +261,7 @@ export default function ProductPage({ title = "Todos los Productos" }) {
       )}
 
       {filtered.length > PER_PAGE && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
 
     </div>
