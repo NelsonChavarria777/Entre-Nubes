@@ -35,7 +35,7 @@ function Card({ product }) {
       <div className="pc-info">
         <p className="pc-category">{product.category}</p>
         <h3 className="pc-name">{product.name}</h3>
-        <span className="pc-price">${product.price.toFixed(2)}</span>
+        <span className="pc-price">₡{Math.round(product.price).toLocaleString("es-CR")}</span>
       </div>
       <div className="pc-divider" />
       <button className="pc-btn" onClick={handleAdd}>

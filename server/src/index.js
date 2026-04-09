@@ -93,8 +93,8 @@ app.post("/api/send-order", async (req, res) => {
           ${item.name}${item.variant ? ` <span style="color: #666;">(${item.variant})</span>` : ""}
         </td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.qty}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${item.price.toFixed(2)}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${(item.price * item.qty).toFixed(2)}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₡${Math.round(item.price).toLocaleString("es-CR")}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₡${Math.round(item.price * item.qty).toLocaleString("es-CR")}</td>
       </tr>
     `).join("");
 
@@ -133,16 +133,16 @@ app.post("/api/send-order", async (req, res) => {
           <table style="width: 100%;">
             <tr>
               <td style="padding: 5px 0;"><strong>Subtotal:</strong></td>
-              <td style="text-align: right;">$${subtotal.toFixed(2)}</td>
+              <td style="text-align: right;">₡${Math.round(subtotal).toLocaleString("es-CR")}</td>
             </tr>
             <tr>
               <td style="padding: 5px 0;"><strong>Envío:</strong></td>
-              <td style="text-align: right;">${shipping === 0 ? "Gratis" : "$" + shipping.toFixed(2)}</td>
+              <td style="text-align: right;">${shipping === 0 ? "Gratis" : "₡" + Math.round(shipping).toLocaleString("es-CR")}</td>
             </tr>
             <tr style="font-size: 18px; color: #111;">
               <td style="padding: 10px 0; border-top: 2px solid #ddd;"><strong>TOTAL:</strong></td>
               <td style="text-align: right; padding: 10px 0; border-top: 2px solid #ddd;">
-                <strong>$${total.toFixed(2)}</strong>
+                <strong>₡${Math.round(total).toLocaleString("es-CR")}</strong>
               </td>
             </tr>
           </table>
@@ -165,17 +165,17 @@ Teléfono: ${customer.telefono}
 WhatsApp: ${customer.whatsapp}
 
 Productos:
-${items.map((item, i) => `${i + 1}. ${item.name}${item.variant ? ` (${item.variant})` : ""} - ${item.qty}x $${item.price.toFixed(2)} = $${(item.price * item.qty).toFixed(2)}`).join("\n")}
+${items.map((item, i) => `${i + 1}. ${item.name}${item.variant ? ` (${item.variant})` : ""} - ${item.qty}x ₡${Math.round(item.price).toLocaleString("es-CR")} = ₡${Math.round(item.price * item.qty).toLocaleString("es-CR")}`).join("\n")}
 
-Subtotal: $${subtotal.toFixed(2)}
-Envío: ${shipping === 0 ? "Gratis" : "$" + shipping.toFixed(2)}
-TOTAL: $${total.toFixed(2)}
+Subtotal: ₡${Math.round(subtotal).toLocaleString("es-CR")}
+Envío: ${shipping === 0 ? "Gratis" : "₡" + Math.round(shipping).toLocaleString("es-CR")}
+TOTAL: ₡${Math.round(total).toLocaleString("es-CR")}
     `;
 
     const mailOptions = {
       from: `"Entre Nubes Shop" <${EMAIL_USER}>`,
       to: EMAIL_TO,
-      subject: `🛒 Nuevo Pedido - ${customer.nombre} ${customer.apellido} - $${total.toFixed(2)}`,
+      subject: `🛒 Nuevo Pedido - ${customer.nombre} ${customer.apellido} - ₡${Math.round(total).toLocaleString("es-CR")}`,
       text: textContent,
       html: htmlContent,
     };

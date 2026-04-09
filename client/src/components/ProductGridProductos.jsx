@@ -95,7 +95,7 @@ function GridCard({ product }) {
       <div className="pp-card-info">
         <p className="pp-category">{product.category}</p>
         <h3 className="pp-name">{product.name}</h3>
-        <span className="pp-price">${product.price.toFixed(2)}</span>
+        <span className="pp-price">₡{Math.round(product.price).toLocaleString("es-CR")}</span>
       </div>
       <div className="pp-divider" />
       <AddButton type="grid" product={product} />
@@ -117,7 +117,7 @@ function ListCard({ product }) {
           <h3 className="pp-list-name">{product.name}</h3>
         </div>
         <div className="pp-list-footer">
-          <span className="pp-list-price">${product.price.toFixed(2)}</span>
+          <span className="pp-list-price">₡{Math.round(product.price).toLocaleString("es-CR")}</span>
           <AddButton type="list" product={product} />
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   );
 
   return (
-    <div className="pp-wrap">
+    <div id="productos-grid" className="pp-wrap">
 
       <div className="pp-header">
         <div>

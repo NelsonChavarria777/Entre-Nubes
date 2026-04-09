@@ -3,8 +3,7 @@ import { useCart } from "../contexts/CartContext.jsx";
 import "./ProductDetail.css";
 
 const ACCORDION_ITEMS = [
-  { title: "Envío y devoluciones", body: "Envío gratis en pedidos +$50. Entrega en 24-48h. Devoluciones aceptadas dentro de los 15 días." },
-  { title: "Cuidado del producto", body: "Limpiar con paño suave y seco. Evitar exposición prolongada a la humedad. Guardar en lugar fresco." },
+  { title: "Devoluciones", body: "Devoluciones aceptadas dentro de los 15 días." },
 ];
 
 export default function ProductDetail({
@@ -162,34 +161,9 @@ export default function ProductDetail({
             </button>
           </div>
 
-          <div className="pd-trust">
-            {[
-              { icon:"🚚", text:"Envío gratis +$50" },
-              { icon:"🔒", text:"Pago seguro" },
-              { icon:"↩️", text:"15 días devolución" },
-            ].map((t, i) => (
-              <div key={i} className="pd-trust-item">
-                <span>{t.icon}</span>
-                <span>{t.text}</span>
-              </div>
-            ))}
-          </div>
+         
 
           <div className="pd-accordion">
-            {/* Descripción completa del JSON */}
-            <div className="pd-acc-item">
-              <button className="pd-acc-header" onClick={() => setOpenAcc(openAcc === -1 ? null : -1)}>
-                Descripción completa
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ transform: openAcc === -1 ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s" }}>
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-              <div className="pd-acc-body" style={{ maxHeight: openAcc === -1 ? "200px" : "0", opacity: openAcc === -1 ? 1 : 0 }}>
-                {description}
-              </div>
-            </div>
-
             {ACCORDION_ITEMS.map((item, i) => (
               <div key={i} className="pd-acc-item">
                 <button className="pd-acc-header" onClick={() => setOpenAcc(openAcc === i ? null : i)}>

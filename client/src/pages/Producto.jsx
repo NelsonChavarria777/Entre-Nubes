@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import ProductDetail from '../components/ProductDetail'
+import RecommendedBar from '../components/RecommendedBar'
 
 function Producto() {
   const { id } = useParams();
@@ -40,8 +41,8 @@ function Producto() {
   // Calcular precio con descuento
   const tieneDescuento = producto.discount !== null && producto.discount > 0;
   const precioFinal    = tieneDescuento
-    ? (producto.price - (producto.price * producto.discount / 100)).toFixed(2)
-    : producto.price.toFixed(2);
+    ? Math.round(producto.price - (producto.price * producto.discount / 100))
+    : Math.round(producto.price);
   const porcentaje     = tieneDescuento ? `${producto.discount}% OFF` : "";
 
   return (
@@ -54,9 +55,9 @@ function Producto() {
         image3={producto.image3}
         productName={producto.name}
         category={producto.category}
-        price={`$${precioFinal}`}
-        priceValue={parseFloat(precioFinal)}
-        oldPrice={tieneDescuento ? `$${producto.price.toFixed(2)}` : ""}
+        price={`₡${precioFinal.toLocaleString("es-CR")}`}
+        priceValue={precioFinal}
+        oldPrice={tieneDescuento ? `₡${Math.round(producto.price).toLocaleString("es-CR")}` : ""}
         discount={porcentaje}
         showDiscount={tieneDescuento}
         description={producto.description}
@@ -66,6 +67,11 @@ function Producto() {
         variants={Array.isArray(producto.variants) ? producto.variants : [producto.variants].filter(Boolean)}
         stockLevel={producto.amount > 5 ? "high" : producto.amount > 1 ? "medium" : "low"}
         stockText={producto.amount > 5 ? "En stock" : producto.amount > 1 ? `Últimas ${producto.amount} unidades` : "Última unidad"}
+      />
+      <RecommendedBar 
+        sectionTitle="También te puede gustar"
+        eyebrow="Recomendados"
+        currentProductId={producto.id}
       />
       <Footer />
     </div>

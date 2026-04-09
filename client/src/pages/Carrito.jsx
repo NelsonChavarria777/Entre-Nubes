@@ -54,7 +54,7 @@ function CartItem({ item, onUpdateQty, onRemove, onUpdateVariant }) {
           </div>
         )}
         {!hasVariants && item.variant && <p className="cart-page-item-variant">{item.variant}</p>}
-        <p className="cart-page-item-price">${item.price.toFixed(2)} c/u</p>
+        <p className="cart-page-item-price">₡{Math.round(item.price).toLocaleString("es-CR")} c/u</p>
       </div>
       <div className="cart-page-item-actions">
         <div className="cart-page-qty">
@@ -73,7 +73,7 @@ function CartItem({ item, onUpdateQty, onRemove, onUpdateVariant }) {
             +
           </button>
         </div>
-        <p className="cart-page-item-total">${(item.price * item.qty).toFixed(2)}</p>
+        <p className="cart-page-item-total">₡{Math.round(item.price * item.qty).toLocaleString("es-CR")}</p>
         <button className="cart-page-remove-btn" onClick={() => onRemove(item.id, item.variant)}>
           <TrashIcon />
         </button>
@@ -103,18 +103,18 @@ function OrderSummary({ items, totalItems, subtotal, shipping, total, onProceed 
       <h2 className="cart-page-summary-title">Resumen del pedido</h2>
       <div className="cart-page-summary-row">
         <span>Productos ({totalItems})</span>
-        <span>${subtotal.toFixed(2)}</span>
+        <span>₡{Math.round(subtotal).toLocaleString("es-CR")}</span>
       </div>
       <div className="cart-page-summary-row">
         <span>Envío</span>
         <span className={shipping === 0 ? "cart-page-free" : ""}>
-          {shipping === 0 ? "Gratis" : `$${shipping.toFixed(2)}`}
+          {shipping === 0 ? "Gratis" : `₡${Math.round(shipping).toLocaleString("es-CR")}`}
         </span>
       </div>
       <div className="cart-page-summary-divider" />
       <div className="cart-page-summary-row cart-page-summary-total">
         <span>Total</span>
-        <span>${total.toFixed(2)}</span>
+        <span>₡{Math.round(total).toLocaleString("es-CR")}</span>
       </div>
       <button 
         onClick={onProceed}
@@ -275,7 +275,7 @@ function CheckoutForm({ items, subtotal, shipping, total, onClose }) {
         
         <div className="cart-page-form-total">
           <span>Total a pagar:</span>
-          <span className="cart-page-form-total-price">${total.toFixed(2)}</span>
+          <span className="cart-page-form-total-price">₡{Math.round(total).toLocaleString("es-CR")}</span>
         </div>
         
         <button 

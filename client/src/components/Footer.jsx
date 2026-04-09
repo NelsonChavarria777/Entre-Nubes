@@ -30,7 +30,7 @@ const navLinks = [
 export default function Footer({
   logoUrl   = LogoEntreNubes,
   slogan    = "Historias que se escriben en el aire.",
-  phone     = "+506 8888-8888",
+  phone     = "+506 7267 7525",
   address   = "100mts Este de la Gasolinera, Turrúcares, Alajuela",
   year      = "2025",
   brandName = "Entre Nubes Smoke Shop",
@@ -49,7 +49,13 @@ export default function Footer({
               <img src={logoUrl} alt="Logo" />
             </div>
             <p className="footer-slogan">"{slogan}"</p>
-            <button className="footer-whatsapp-btn">
+            <button 
+              className="footer-whatsapp-btn"
+              onClick={() => {
+                const cleanPhone = phone.replace(/\D/g, "");
+                window.open(`https://wa.me/${cleanPhone}`, "_blank");
+              }}
+            >
               <WhatsappIcon />
               Escribir por WhatsApp
             </button>

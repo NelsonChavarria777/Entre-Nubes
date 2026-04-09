@@ -56,7 +56,7 @@ const hours = [
 //Horas-----------------------------------------------------------------------------------
 
 export default function ContactSection({
-  phone     = "+506 8888-8888",
+  phone     = "+506 7267 7525",
   instagram = "@entrenubes.smoke",
   facebook  = "entrenubessmoke",
   tiktok    = "@entrenubes.smoke",
@@ -106,7 +106,13 @@ export default function ContactSection({
             <p className="card-label">Teléfono</p>
             <p className="card-phone">{phone}</p>
             <p className="card-sub">Disponible en horario de atención</p>
-            <button className="whatsapp-btn">
+            <button 
+              className="whatsapp-btn"
+              onClick={() => {
+                const cleanPhone = phone.replace(/\D/g, "");
+                window.open(`https://wa.me/${cleanPhone}`, "_blank");
+              }}
+            >
               <WhatsappIcon />
               Escribir por WhatsApp
             </button>

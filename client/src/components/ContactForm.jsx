@@ -5,8 +5,8 @@ const categories = ["Pipas & Accesorios", "Vaporizadores", "Rolling Papers", "Gr
 
 export default function ContactForm({
   defaultTab = "cliente",
-  phone      = "+506 8888-8888",
-  email      = "hola@smokeshop.cr",
+  phone      = "+506 7267 7525",
+  email      = "entrenubes.smoke@gmail.com",
 }) {
   const [tab, setTab]               = useState(defaultTab);
   const [sent, setSent]             = useState(false);

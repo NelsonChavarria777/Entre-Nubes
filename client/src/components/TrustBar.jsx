@@ -64,13 +64,13 @@ function TrustItemCompact({ Icon, title, sub }) {
 
 export default function TrustBar({
   item1Title = "Envio Rapido",
-  item1Sub   = "Entrega en 24-48h a todo el pais",
+  item1Sub   = "",
   item2Title = "Pago Seguro",
-  item2Sub   = "100% protegido y encriptado",
+  item2Sub   = "",
   item3Title = "Calidad Garantizada",
-  item3Sub   = "Productos certificados y verificados",
+  item3Sub   = "",
   item4Title = "Soporte 7/7",
-  item4Sub   = "Atencion por WhatsApp todos los dias",
+  item4Sub   = "",
 }) {
   const [isMobile, setIsMobile] = useState(false);
 

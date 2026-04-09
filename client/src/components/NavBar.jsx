@@ -37,7 +37,7 @@ function CartItems({ items, changeQty, removeItem }) {
           <div className="cart-item-info">
             <p className="cart-item-name">{item.name}</p>
             {item.variant && <p className="cart-item-variant">{item.variant}</p>}
-            <p className="cart-item-price">${(item.price * item.qty).toFixed(2)}</p>
+            <p className="cart-item-price">₡{Math.round(item.price * item.qty).toLocaleString("es-CR")}</p>
           </div>
           <div className="cart-item-qty">
             <button className="qty-btn" onClick={() => changeQty(item.id, item.variant, -1)}>−</button>
@@ -77,7 +77,7 @@ export default function NavBar({
     <div className="cart-footer">
       <div className="cart-total">
         <span>Total</span>
-        <span className="cart-total-price">${totalPrice.toFixed(2)}</span>
+        <span className="cart-total-price">₡{Math.round(totalPrice).toLocaleString("es-CR")}</span>
       </div>
       <Link to="/carrito" className="checkout-btn" onClick={closeCart}>
         Ver Carrito <ArrowIcon />
