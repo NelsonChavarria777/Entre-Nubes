@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useCart } from "../contexts/CartContext.jsx";
 import "./ProductDetail.css";
 
 const ACCORDION_ITEMS = [
@@ -7,12 +8,14 @@ const ACCORDION_ITEMS = [
 ];
 
 export default function ProductDetail({
+  id,
   imageUrl     = "",
   image2       = "",
   image3       = "",
   productName  = "",
   category     = "",
   price        = "",
+  priceValue   = 0,
   oldPrice     = "",
   discount     = "",
   description  = "",
@@ -24,6 +27,7 @@ export default function ProductDetail({
   showDiscount = false,
   variants     = [],
 }) {
+  const { addItem, openCart } = useCart();
   const [qty, setQty]           = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(variants[0] || "");
   const [added, setAdded]       = useState(false);
@@ -44,8 +48,21 @@ export default function ProductDetail({
   }, []);
 
   const handleAdd = () => {
+    const numericPrice = priceValue || parseFloat(price.replace(/[^0-9.]/g, "")) || 0;
+    addItem({
+      id,
+      name: productName,
+      price: numericPrice,
+      image: imageUrl,
+      variant: selectedVariant,
+      variants: variants.length > 0 ? variants : [],
+      qty,
+    });
     setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
+    setTimeout(() => {
+      setAdded(false);
+      openCart();
+    }, 800);
   };
 
   return (

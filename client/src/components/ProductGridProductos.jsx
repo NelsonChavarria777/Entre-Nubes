@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../contexts/CartContext.jsx";
 import "./ProductGridProductos.css";
 
 const SORT_OPTIONS = [
@@ -46,9 +47,32 @@ const ChevronRightIcon = () => (
   </svg>
 );
 
-function AddButton({ type }) {
+function AddButton({ type, product }) {
   const [added, setAdded] = useState(false);
-  const handle = (e) => { e.stopPropagation(); setAdded(true); setTimeout(() => setAdded(false), 1500); };
+  const { addItem, openCart } = useCart();
+  
+  const handle = (e) => { 
+    e.stopPropagation(); 
+    
+    const firstVariant = product.variants && product.variants.length > 0 ? product.variants[0] : "";
+    
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      variant: firstVariant,
+      variants: product.variants || [],
+      qty: 1,
+    });
+    
+    setAdded(true); 
+    setTimeout(() => {
+      setAdded(false);
+      openCart();
+    }, 800); 
+  };
+  
   return type === "grid" ? (
     <button className="pp-card-btn" onClick={handle}>
       {added ? <><CheckIcon />Listo!</> : <><CartIcon />Agregar</>}
@@ -74,7 +98,7 @@ function GridCard({ product }) {
         <span className="pp-price">${product.price.toFixed(2)}</span>
       </div>
       <div className="pp-divider" />
-      <AddButton type="grid" />
+      <AddButton type="grid" product={product} />
     </div>
   );
 }
@@ -94,7 +118,7 @@ function ListCard({ product }) {
         </div>
         <div className="pp-list-footer">
           <span className="pp-list-price">${product.price.toFixed(2)}</span>
-          <AddButton type="list" />
+          <AddButton type="list" product={product} />
         </div>
       </div>
     </div>

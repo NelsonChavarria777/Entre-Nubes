@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useCart } from "../contexts/CartContext.jsx";
 import "./NavBar.css";
 import LogoEntreNubes from "../assets/LogoEntreNubes.webp";
 
@@ -28,21 +29,22 @@ function CartItems({ items, changeQty, removeItem }) {
     </div>
   ) : (
     <>
-      {items.map(item => (
-        <div key={item.id} className="cart-item">
+      {items.map((item) => (
+        <div key={`${item.id}-${item.variant}`} className="cart-item">
           <div className="cart-item-img">
             <img src={item.image} alt={item.name} />
           </div>
           <div className="cart-item-info">
             <p className="cart-item-name">{item.name}</p>
+            {item.variant && <p className="cart-item-variant">{item.variant}</p>}
             <p className="cart-item-price">${(item.price * item.qty).toFixed(2)}</p>
           </div>
           <div className="cart-item-qty">
-            <button className="qty-btn" onClick={() => changeQty(item.id, -1)}>−</button>
+            <button className="qty-btn" onClick={() => changeQty(item.id, item.variant, -1)}>−</button>
             <span>{item.qty}</span>
-            <button className="qty-btn" onClick={() => changeQty(item.id, +1)}>+</button>
+            <button className="qty-btn" onClick={() => changeQty(item.id, item.variant, +1)}>+</button>
           </div>
-          <button className="remove-btn" onClick={() => removeItem(item.id)}>
+          <button className="remove-btn" onClick={() => removeItem(item.id, item.variant)}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -60,9 +62,8 @@ export default function NavBar({
   showContacto  = true,
 }) {
   const location = useLocation();
-  const [cartOpen, setCartOpen] = useState(false);
+  const { items, totalItems, totalPrice, changeQty, removeItem, isOpen, toggleCart, closeCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [items, setItems]       = useState([]);
 
   const links = [
     { label: "Inicio",    path: "/",          show: showInicio    },
@@ -70,21 +71,17 @@ export default function NavBar({
     { label: "Contacto",  path: "/contacto",   show: showContacto  },
   ].filter(l => l.show);
 
-  const totalItems = items.reduce((s, i) => s + i.qty, 0);
-  const totalPrice = items.reduce((s, i) => s + i.price * i.qty, 0);
-  const changeQty  = (id, d) => setItems(p => p.map(i => i.id === id ? { ...i, qty: i.qty + d } : i).filter(i => i.qty > 0));
-  const removeItem = (id)    => setItems(p => p.filter(i => i.id !== id));
-  const openCart   = () => { setCartOpen(true); setMenuOpen(false); };
-
   const isActive = (path) => location.pathname === path;
 
-  const CartFooter = () => items.length > 0 ? (
+  const CartFooter = ({ items, totalPrice }) => items.length > 0 ? (
     <div className="cart-footer">
       <div className="cart-total">
         <span>Total</span>
         <span className="cart-total-price">${totalPrice.toFixed(2)}</span>
       </div>
-      <button className="checkout-btn">Seguir con el Pago <ArrowIcon /></button>
+      <Link to="/carrito" className="checkout-btn" onClick={closeCart}>
+        Ver Carrito <ArrowIcon />
+      </Link>
     </div>
   ) : null;
 
@@ -113,14 +110,14 @@ export default function NavBar({
           <div className="nav-right">
             {/* Desktop cart */}
             <div className="desktop-cart">
-              <button className={`cart-btn${cartOpen ? " open" : ""}`}
-                onClick={() => { setCartOpen(o => !o); setMenuOpen(false); }}>
+              <button className={`cart-btn${isOpen ? " open" : ""}`}
+                onClick={() => { toggleCart(); setMenuOpen(false); }}>
                 <CartIcon />
                 <span>Carrito</span>
                 {totalItems > 0 && <div className="cart-badge">{totalItems}</div>}
               </button>
 
-              {cartOpen && (
+              {isOpen && (
                 <div className="cart-dropdown">
                   <div className="cart-dropdown-header">
                     <span>Mi Carrito</span>
@@ -129,13 +126,13 @@ export default function NavBar({
                   <div className="cart-dropdown-items">
                     <CartItems items={items} changeQty={changeQty} removeItem={removeItem} />
                   </div>
-                  <CartFooter />
+                  <CartFooter items={items} totalPrice={totalPrice} />
                 </div>
               )}
             </div>
 
             {/* Hamburger */}
-            <button className="hamburger" onClick={() => { setMenuOpen(o => !o); setCartOpen(false); }}>
+            <button className="hamburger" onClick={() => { setMenuOpen(o => !o); }}>
               <div className={`ham-line${menuOpen ? " open-1" : ""}`} />
               <div className={`ham-line${menuOpen ? " open-2" : ""}`} />
               <div className={`ham-line${menuOpen ? " open-3" : ""}`} />
@@ -158,7 +155,7 @@ export default function NavBar({
                 )}
               </Link>
             ))}
-            <button className="mobile-cart-btn" onClick={openCart}>
+            <button className="mobile-cart-btn" onClick={toggleCart}>
               <CartIcon size={18} />
               Carrito
               {totalItems > 0 && <span className="mobile-cart-badge">{totalItems}</span>}
@@ -168,16 +165,16 @@ export default function NavBar({
       </nav>
 
       {/* Mobile bottom sheet */}
-      {cartOpen && (
+      {isOpen && (
         <>
-          <div className="mobile-overlay" onClick={() => setCartOpen(false)} />
+          <div className="mobile-overlay" onClick={closeCart} />
           <div className="mobile-sheet">
             <div className="sheet-handle" />
             <div className="sheet-header">
               <span>Mi Carrito</span>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <span className="cart-count">{totalItems} artículo{totalItems !== 1 ? "s" : ""}</span>
-                <button className="sheet-close" onClick={() => setCartOpen(false)}>
+                <button className="sheet-close" onClick={closeCart}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
@@ -187,7 +184,7 @@ export default function NavBar({
             <div className="sheet-items">
               <CartItems items={items} changeQty={changeQty} removeItem={removeItem} />
             </div>
-            <CartFooter />
+            <CartFooter items={items} totalPrice={totalPrice} />
           </div>
         </>
       )}

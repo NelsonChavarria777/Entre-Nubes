@@ -48,12 +48,14 @@ function Producto() {
     <div>
       <NavBar />
       <ProductDetail
+        id={producto.id}
         imageUrl={producto.image}
         image2={producto.image2}
         image3={producto.image3}
         productName={producto.name}
         category={producto.category}
         price={`$${precioFinal}`}
+        priceValue={parseFloat(precioFinal)}
         oldPrice={tieneDescuento ? `$${producto.price.toFixed(2)}` : ""}
         discount={porcentaje}
         showDiscount={tieneDescuento}
