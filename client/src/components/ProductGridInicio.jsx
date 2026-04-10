@@ -62,7 +62,7 @@ export default function ProductGrid({ title = "Nuestros Productos" }) {
   const [error, setError]       = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/productos")
+    fetch(`${import.meta.env.VITE_API_URL}/api/productos`)
       .then(res => res.json())
       .then(data => {
         setProducts(data.slice(0, 12));
