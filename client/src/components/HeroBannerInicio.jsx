@@ -5,7 +5,7 @@ import "./HeroBannerInicio.css";
 const slides = [
   {
     id: 1,
-    image: "https://www.shutterstock.com/image-photo/accessories-smoking-marijuana-store-smoke-600nw-1498178294.jpg",
+    image: "/images/banner-inicio-1.webp",
     label: "Colección Premium",
     title: "Eleva tu\nexperiencia",
     sub: "Accesorios de la más alta calidad para los verdaderos conocedores.",
@@ -14,7 +14,7 @@ const slides = [
   },
   {
     id: 2,
-    image: "https://www.vaposhop.com/cdn/shop/collections/raw-rolling-paper-banner.jpg?v=1750312762&width=1800",
+    image: "/images/banner-inicio-2.webp",
     label: "Nuevos Ingresos",
     title: "Sabor &\nEstilo",
     sub: "Rolling papers, grinders y más — todo en un solo lugar.",
@@ -23,7 +23,7 @@ const slides = [
   },
   {
     id: 3,
-    image: "https://img.freepik.com/fotos-premium/matriz-vapeos-colores-pantalla-resaltando-opciones-sabor-concepto-vapeos-color-opciones-sabor-mostrar-matriz-resaltando_918839-183123.jpg",
+    image: "/images/banner-inicio-3.webp",
     label: "Vaporizadores",
     title: "El futuro\nes ahora",
     sub: "La mejor tecnología de vaporización disponible.",
@@ -32,7 +32,7 @@ const slides = [
   },
   {
     id: 4,
-    image: "https://media.istockphoto.com/id/918226564/es/foto/estilo-de-vida-en-amsterdam.jpg?s=612x612&w=0&k=20&c=FLpKOlUcrs75XBIaOlM4DFgIBf4iojLefyxP3mFcgZc=",
+    image: "/images/banner-inicio-4.webp",
     label: "Almacenamiento",
     title: "Frescura\ngarantizada",
     sub: "Guarda tus productos con estilo y hermeticidad total.",
@@ -41,7 +41,7 @@ const slides = [
   },
   {
     id: 5,
-    image: "https://cdn.pixabay.com/photo/2017/08/17/13/05/lighter-2651256_1280.jpg",
+    image: "/images/banner-inicio-5.webp",
     label: "Encendedores",
     title: "Detalle en\ncada chispa",
     sub: "Encendedores de diseño para llevar siempre contigo.",

@@ -2,7 +2,7 @@
 import "./HeroBannerProductos.css";
 
 export default function PageBanner({
-  imageUrl   = "https://cdn.abacus.ai/images/bfea82ef-1cf1-46d8-b63b-2e3c473e74ac.png",
+  imageUrl   = "/images/banner-productos.webp",
   titleLine1 = "Todo lo que",
   titleAccent = "necesitás.",
   subtitle   = "Explorá nuestra selección de productos premium.",
