@@ -4,5 +4,8 @@
   "scripts": {
     "build": "cd client && npm install && npm run build",
     "start": "cd server && npm start"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.0"
   }
 }
