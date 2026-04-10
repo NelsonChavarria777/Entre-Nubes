@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../contexts/CartContext.jsx";
-import "./NavBar.css";
+import "./Navbar.css";
 import LogoEntreNubes from "../assets/LogoEntreNubes.webp";
 
 const CartIcon = ({ size = 19 }) => (
