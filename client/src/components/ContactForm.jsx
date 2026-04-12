@@ -11,6 +11,7 @@ export default function ContactForm({
   const [tab, setTab]               = useState(defaultTab);
   const [sent, setSent]             = useState(false);
   const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState(null);
   const [selectedCats, setSelectedCats] = useState([]);
 
   const [form, setForm] = useState({
@@ -20,13 +21,51 @@ export default function ContactForm({
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const toggleCat    = (cat) => setSelectedCats(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSent(true); }, 1600);
+    setError(null);
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/send-contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tipo: tab,
+          nombre: form.nombre,
+          apellido: form.apellido,
+          correo: form.correo,
+          telefono: form.telefono,
+          asunto: form.asunto,
+          mensaje: form.mensaje,
+          empresa: form.empresa,
+          sitio: form.sitio,
+          volumen: form.volumen,
+          categorias: selectedCats,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSent(true);
+      } else {
+        setError("Error al enviar el mensaje. Intenta de nuevo.");
+      }
+    } catch (err) {
+      setError("Error de conexión. Verifica tu internet e intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
   };
+
   const reset = () => {
     setSent(false);
+    setError(null);
     setForm({ nombre:"",apellido:"",correo:"",telefono:"",asunto:"",mensaje:"",empresa:"",sitio:"",volumen:"" });
     setSelectedCats([]);
   };
@@ -167,6 +206,12 @@ export default function ContactForm({
                     : "¿En qué podemos ayudarte?"}
                   value={form.mensaje} onChange={handleChange} required />
               </div>
+
+              {error && (
+                <div className="cf-error" style={{ color: "#FF3913", fontSize: "14px", marginBottom: "12px", textAlign: "center" }}>
+                  {error}
+                </div>
+              )}
 
               <button className="cf-submit" type="submit" disabled={loading}>
                 {loading ? (
