@@ -1,4 +1,4 @@
-import { productos } from '../productos-data.js';
+import productos from '../productos-data.js';
 
 export default function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");

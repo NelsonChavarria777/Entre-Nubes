@@ -1,5 +1,5 @@
 // Datos de productos embebidos para Vercel
-export const productos = [
+const productos = [
   { "id": 1, "name": "Glass Pipe", "price": 10000, "discount": 30, "amount": 10, "variants": ["Standard"], "badge": "Nuevo", "badgeBg": "#D3FF0B", "badgeColor": "#000", "category": "Pipas", "description": "Pipa de vidrio borosilicato de alta calidad. Diseño compacto y resistente, perfecta para uso diario. Fácil de limpiar y con excelente flujo de aire.", "image": "/images/producto_gen.webp", "image2": "/images/producto_gen.webp", "image3": "/images/producto_gen.webp" },
   { "id": 2, "name": "Grinder Pro", "price": 10000, "discount": null, "amount": 1, "variants": ["Standard", "Premium"], "badge": "OFERTA", "badgeBg": "#FF3913", "badgeColor": "#fff", "category": "Molinillos", "description": "Molinillo metálico de 4 partes con malla colectora de kief. Dientes de aluminio afilados para una trituración uniforme y eficiente.", "image": "/images/producto_gen.webp", "image2": "", "image3": "" },
   { "id": 3, "name": "Rolling Papers", "price": 10000, "discount": null, "amount": 10, "variants": ["Standard", "Premium"], "badge": "Popular", "badgeBg": "#8DC63F", "badgeColor": "#fff", "category": "Papeles", "description": "Papeles de liar ultrafinos de cáñamo natural. Sin cloro, combustión lenta y sabor puro. Pack de 50 hojas tamaño 1¼.", "image": "/images/producto_gen.webp", "image2": "", "image3": "" },
@@ -25,3 +25,5 @@ export const productos = [
   { "id": 23, "name": "Dab Pen", "price": 10000, "discount": null, "amount": 10, "variants": ["Standard", "Premium"], "badge": "OFERTA", "badgeBg": "#FF3913", "badgeColor": "#fff", "category": "Vaporizadores", "description": "Dab pen con atomizador de cerámica de carga lateral. Calentamiento en 15 segundos, 4 niveles de temperatura y batería de 900mAh. Incluye herramienta dab.", "image": "/images/producto_gen.webp", "image2": "", "image3": "" },
   { "id": 24, "name": "Hemp Wick", "price": 10000, "discount": null, "amount": 10, "variants": ["Standard", "Premium"], "badge": "Nuevo", "badgeBg": "#D3FF0B", "badgeColor": "#000", "category": "Encendedores", "description": "Mecha de cáñamo encerada con cera de abejas. Alternativa natural a los encendedores de butano. Rollo de 3 metros, sabor puro sin químicos.", "image": "/images/producto_gen.webp", "image2": "", "image3": "" }
 ];
+
+export default productos;
