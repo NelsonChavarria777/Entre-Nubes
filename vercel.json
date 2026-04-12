@@ -2,6 +2,11 @@
   "outputDirectory": "client/dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/images/(.*)", "destination": "/images/$1" },
+    { "source": "/producto/(.*)", "destination": "/index.html" },
+    { "source": "/carrito", "destination": "/index.html" },
+    { "source": "/productos", "destination": "/index.html" },
+    { "source": "/contacto", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
