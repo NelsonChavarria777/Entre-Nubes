@@ -1,4 +1,131 @@
 import "./ContactSection.css";
+import { useState, useEffect, useRef } from "react";
+
+// Lazy Map Component - carga solo al hacer clic o al entrar en viewport
+function LazyMap({ src, title }) {
+  const [showMap, setShowMap] = useState(false);
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    // Si ya mostramos el mapa, no volver a observar
+    if (showMap) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsIntersecting(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px", threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [showMap]);
+
+  if (showMap) {
+    return (
+      <iframe
+        src={src}
+        width="100%"
+        height="280"
+        style={{ border: 0, display: "block" }}
+        allowFullScreen=""
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title={title}
+      />
+    );
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      onClick={() => setShowMap(true)}
+      style={{
+        width: "100%",
+        height: "280px",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        borderRadius: "12px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Placeholder background pattern */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%)
+          `,
+        }}
+      />
+
+      {/* Map pin icon */}
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ marginBottom: "12px", position: "relative", zIndex: 1 }}
+      >
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+        <circle cx="12" cy="10" r="3" fill="white" fillOpacity="0.3" />
+      </svg>
+
+      <p
+        style={{
+          color: "white",
+          fontSize: "16px",
+          fontWeight: 600,
+          marginBottom: "8px",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        Ver mapa de ubicación
+      </p>
+      <p
+        style={{
+          color: "rgba(255,255,255,0.8)",
+          fontSize: "13px",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        {isIntersecting ? "Haz clic para cargar" : "Cargando..."}
+      </p>
+
+      {/* Hover effect overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(255,255,255,0.1)",
+          opacity: 0,
+          transition: "opacity 0.2s",
+        }}
+        className="map-hover-overlay"
+      />
+    </div>
+  );
+}
 
 //Imagenes--------------------------------------------------------------------------------
 const PhoneIcon = () => (
@@ -84,14 +211,8 @@ export default function ContactSection({
             </div>
           </div>
           <div className="map-iframe-wrap">
-            <iframe
+            <LazyMap
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1300.6386591684707!2d-84.31548200406014!3d9.962760705526938!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0568b00d05c67%3A0x702fd634896bed0d!2sMini%20Super%20y%20Licorera%20La%20Vi%C3%B1a!5e1!3m2!1sen!2scr!4v1772052518398!5m2!1sen!2scr"
-              width="100%"
-              height="280"
-              style={{ border: 0, display: "block" }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
               title="Ubicación Smoke Shop"
             />
           </div>
