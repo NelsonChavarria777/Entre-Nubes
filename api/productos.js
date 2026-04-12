@@ -29,5 +29,18 @@ const productos = [
 export default function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
+  
+  const { id } = req.query;
+  
+  // Si se proporciona un ID, buscar ese producto específico
+  if (id) {
+    const product = productos.find(p => p.id === parseInt(id));
+    if (!product) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+    return res.status(200).json(product);
+  }
+  
+  // Si no hay ID, devolver todos los productos
   res.status(200).json(productos);
 }

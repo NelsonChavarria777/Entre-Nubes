@@ -13,7 +13,7 @@ function Producto() {
 
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL || '';
-    fetch(`${apiUrl}/api/productos/${id}`)
+    fetch(`${apiUrl}/api/productos?id=${id}`)
       .then(res => res.json())
       .then(data => { setProducto(data); setLoading(false); })
       .catch(() => { setError("No se pudo cargar el producto"); setLoading(false); });
