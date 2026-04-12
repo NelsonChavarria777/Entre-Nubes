@@ -13,6 +13,9 @@
     <!-- Fuente combinada - carga non-blocking para evitar render block -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Permanent+Marker&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Permanent+Marker&display=swap"></noscript>
+
+    <!-- Preload imagen LCP para que el navegador la descubra inmediatamente -->
+    <link rel="preload" as="image" href="/images/banner-inicio-1.webp" fetchpriority="high">
   </head>
   <body>
     <div id="root"></div>
