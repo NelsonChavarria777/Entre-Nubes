@@ -92,7 +92,14 @@ export default function NavBar({
 
           {/* Logo */}
           <Link to="/" className="logo-circle">
-            <img src={logoUrl} alt="Logo" />
+            <img
+              src={logoUrl}
+              alt="Logo"
+              width={164}
+              height={164}
+              decoding="async"
+              fetchpriority="high"
+            />
           </Link>
 
           {/* Desktop links */}

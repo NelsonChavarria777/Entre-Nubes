@@ -106,11 +106,19 @@ export default function HeroBanner({ autoPlay = true }) {
       {/* Slides */}
       {slides.map((s, i) => {
         const isActive = i === current;
+        const isFirst = i === 0;
         return (
           <div key={s.id} className={`hero-slide${isActive ? " active" : ""}`}>
             <div className="hero-img-wrap">
               <img
-                src={s.image} alt={s.title} draggable={false}
+                src={s.image}
+                alt={s.title}
+                draggable={false}
+                width={1920}
+                height={1080}
+                decoding="async"
+                fetchpriority={isFirst ? "high" : "low"}
+                loading={isFirst ? "eager" : "lazy"}
                 style={{ animation: isActive ? `${s.kenBurns} ${DURATION + 1000}ms ease-in-out forwards` : "none" }}
               />
             </div>

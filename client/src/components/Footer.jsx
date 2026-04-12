@@ -46,7 +46,14 @@ export default function Footer({
           {/* Logo + slogan + CTA */}
           <div className="footer-brand">
             <div className="footer-logo-wrap">
-              <img src={logoUrl} alt="Logo" />
+              <img
+                src={logoUrl}
+                alt="Logo"
+                width={164}
+                height={164}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <p className="footer-slogan">"{slogan}"</p>
             <button 

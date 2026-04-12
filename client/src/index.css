@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=DM+Sans:wght@300;400;500&display=swap');
+/* Fuentes cargadas en index.html con preconnect para mejor performance */
 
 * {
   box-sizing: border-box;
