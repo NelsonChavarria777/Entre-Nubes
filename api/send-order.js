@@ -1,15 +1,5 @@
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransporter({
-  host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: process.env.EMAIL_PORT || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -24,9 +14,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { customer, items, subtotal, shipping, total } = req.body;
-    const EMAIL_TO = process.env.EMAIL_TO || "aaronchavarria.ctpa@gmail.com";
     const EMAIL_USER = process.env.EMAIL_USER;
+    const EMAIL_PASS = process.env.EMAIL_PASS;
+    const EMAIL_TO = process.env.EMAIL_TO || "aaronchavarria.ctpa@gmail.com";
+
+    if (!EMAIL_USER || !EMAIL_PASS) {
+      console.error("Missing email credentials");
+      return res.status(500).json({ success: false, error: "Error de configuración de email" });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST || "smtp.gmail.com",
+      port: process.env.EMAIL_PORT || 587,
+      secure: false,
+      auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_PASS,
+      },
+    });
+
+    const { customer, items, subtotal, shipping, total } = req.body;
 
     const itemsHtml = items.map((item, index) => `
       <tr>
