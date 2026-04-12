@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=DM+Sans:wght@300;400;500&display=swap');
-
 .footer { background: #8DC63F; width: 100%; }
 
 .footer-accent-line { width: 100%; height: 3px; background: linear-gradient(90deg, #000, #D3FF0B, #000); }
