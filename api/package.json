@@ -1,0 +1,7 @@
+{
+  "name": "api",
+  "type": "module",
+  "dependencies": {
+    "nodemailer": "^6.9.0"
+  }
+}
