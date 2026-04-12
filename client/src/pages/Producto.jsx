@@ -12,7 +12,8 @@ function Producto() {
   const [error, setError]       = useState(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/productos/${id}`)
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    fetch(`${apiUrl}/api/productos/${id}`)
       .then(res => res.json())
       .then(data => { setProducto(data); setLoading(false); })
       .catch(() => { setError("No se pudo cargar el producto"); setLoading(false); });

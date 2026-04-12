@@ -58,7 +58,8 @@ export default function RecommendedBar({
   const trackRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/productos`)
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    fetch(`${apiUrl}/api/productos`)
       .then(res => res.json())
       .then(data => {
         const allProducts = Array.isArray(data) ? data : data.productos || [];

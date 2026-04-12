@@ -176,7 +176,8 @@ export default function ProductPage({ title = "Todos los Productos" }) {
   const PER_PAGE = 20;
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/productos`)
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    fetch(`${apiUrl}/api/productos`)
       .then(res => res.json())
       .then(data => { setProducts(data); setLoading(false); })
       .catch(() => { setError("No se pudo cargar los productos"); setLoading(false); });

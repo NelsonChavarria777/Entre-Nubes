@@ -164,7 +164,8 @@ function CheckoutForm({ items, subtotal, shipping, total, onClose }) {
     setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/send-order`, {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/send-order`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
