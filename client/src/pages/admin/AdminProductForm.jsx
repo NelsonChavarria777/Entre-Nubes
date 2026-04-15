@@ -52,14 +52,19 @@ function AdminProductForm() {
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories from:', `${API_URL}/api/categorias`);
       const response = await fetch(`${API_URL}/api/categorias`);
+      console.log('Response status:', response.status);
       if (response.ok) {
         const cats = await response.json();
+        console.log('Categories loaded:', cats);
         setCategories(cats);
         // Si no hay categoría seleccionada y hay categorías disponibles, seleccionar la primera
         if (!formData.category && cats.length > 0) {
           setFormData(prev => ({ ...prev, category: cats[0] }));
         }
+      } else {
+        console.error('Failed to load categories, status:', response.status);
       }
     } catch (err) {
       console.error('Error cargando categorías:', err);
@@ -283,21 +288,37 @@ function AdminProductForm() {
                 <label>Categoría *</label>
                 
                 {/* Category Suggestions */}
-                <div className="admin-badge-suggestions">
-                  <span className="admin-badge-suggestions-label">Sugerencias:</span>
-                  <div className="admin-badge-suggestions-list">
-                    {categories.map(cat => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => applyCategorySuggestion(cat)}
-                        className={`admin-badge-suggestion ${formData.category === cat ? 'active' : ''}`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
+                {categories.length > 0 ? (
+                  <div className="admin-badge-suggestions">
+                    <span className="admin-badge-suggestions-label">Sugerencias ({categories.length}):</span>
+                    <div className="admin-badge-suggestions-list">
+                      {categories.map(cat => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => applyCategorySuggestion(cat)}
+                          className={`admin-badge-suggestion ${formData.category === cat ? 'active' : ''}`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="admin-badge-suggestions">
+                    <span className="admin-badge-suggestions-label" style={{ color: '#FF3913' }}>
+                      ⚠️ No hay categorías disponibles. 
+                    </span>
+                    <button 
+                      type="button" 
+                      onClick={fetchCategories}
+                      className="admin-btn admin-btn-small admin-btn-secondary"
+                      style={{ marginTop: '8px' }}
+                    >
+                      🔄 Recargar categorías
+                    </button>
+                  </div>
+                )}
                 
                 {/* Category Text Input */}
                 <input
