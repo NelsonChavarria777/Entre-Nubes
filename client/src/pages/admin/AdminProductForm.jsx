@@ -17,8 +17,6 @@ function AdminProductForm() {
     discount: '',
     amount: '',
     category: '',
-    categoryBg: '#8DC63F',
-    categoryColor: '#fff',
     description: '',
     badge: '',
     badgeBg: '#8DC63F',
@@ -174,30 +172,8 @@ function AdminProductForm() {
     }));
   };
 
-  const handleCategoryColorChange = (colorType, value) => {
-    setFormData(prev => ({ ...prev, [colorType]: value }));
-  };
-
   const applyCategorySuggestion = (categoryName) => {
-    // Colores predefinidos para categorías comunes
-    const categoryColorMap = {
-      'Pipas': { bg: '#8DC63F', color: '#fff' },
-      'Molinillos': { bg: '#D3FF0B', color: '#000' },
-      'Papeles': { bg: '#FF3913', color: '#fff' },
-      'Vaporizadores': { bg: '#000', color: '#D3FF0B' },
-      'Almacenamiento': { bg: '#8DC63F', color: '#fff' },
-      'Encendedores': { bg: '#FF3913', color: '#fff' },
-      'Accesorios': { bg: '#8DC63F', color: '#fff' }
-    };
-
-    const colors = categoryColorMap[categoryName] || { bg: '#8DC63F', color: '#fff' };
-    
-    setFormData(prev => ({
-      ...prev,
-      category: categoryName,
-      categoryBg: colors.bg,
-      categoryColor: colors.color
-    }));
+    setFormData(prev => ({ ...prev, category: categoryName }));
   };
 
   const addVariant = () => {
@@ -304,7 +280,7 @@ function AdminProductForm() {
               </div>
 
               <div className="admin-form-group">
-                <label>Categoría personalizable *</label>
+                <label>Categoría *</label>
                 
                 {/* Category Suggestions */}
                 <div className="admin-badge-suggestions">
@@ -334,50 +310,6 @@ function AdminProductForm() {
                   placeholder="Nombre de la categoría"
                   className="admin-badge-input"
                 />
-                
-                {/* Category Color Pickers */}
-                <div className="admin-badge-colors">
-                  <div className="admin-color-picker">
-                    <label htmlFor="categoryBg">Fondo:</label>
-                    <div className="admin-color-input-wrapper">
-                      <input
-                        type="color"
-                        id="categoryBg"
-                        value={formData.categoryBg}
-                        onChange={(e) => handleCategoryColorChange('categoryBg', e.target.value)}
-                      />
-                      <span className="admin-color-value">{formData.categoryBg}</span>
-                    </div>
-                  </div>
-                  <div className="admin-color-picker">
-                    <label htmlFor="categoryColor">Texto:</label>
-                    <div className="admin-color-input-wrapper">
-                      <input
-                        type="color"
-                        id="categoryColor"
-                        value={formData.categoryColor}
-                        onChange={(e) => handleCategoryColorChange('categoryColor', e.target.value)}
-                      />
-                      <span className="admin-color-value">{formData.categoryColor}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Category Preview */}
-                {formData.category && (
-                  <div className="admin-badge-preview">
-                    <span className="admin-badge-preview-label">Vista previa:</span>
-                    <span 
-                      className="admin-badge"
-                      style={{
-                        backgroundColor: formData.categoryBg,
-                        color: formData.categoryColor
-                      }}
-                    >
-                      {formData.category}
-                    </span>
-                  </div>
-                )}
               </div>
 
               <div className="admin-form-group">
@@ -608,46 +540,43 @@ function AdminProductForm() {
             </div>
           </div>
 
-          {/* Product Card Preview */}
+          {/* Product Card Preview - Exact replica of site card */}
           <div className="admin-form-section admin-preview-section">
             <h3 className="admin-form-section-title">👁️ Vista previa del producto</h3>
-            <div className="admin-product-preview-container">
-              <div className="admin-product-card-preview">
-                <div className="admin-preview-image-wrap">
-                  <img 
-                    src={formData.image || '/images/producto_gen.webp'} 
-                    alt={formData.name || 'Producto'} 
-                    className="admin-preview-image"
-                    onError={(e) => e.target.src = '/images/producto_gen.webp'}
-                  />
-                  {formData.badge && (
-                    <div 
-                      className="admin-preview-badge"
-                      style={{ background: formData.badgeBg, color: formData.badgeColor }}
-                    >
-                      {formData.badge}
-                    </div>
-                  )}
+            <div className="admin-preview-bg">
+              <div className="admin-preview-card-wrap">
+                <div className="pp-card-preview">
+                  <div className="pp-card-img-wrap-preview">
+                    <img 
+                      src={formData.image || '/images/producto_gen.webp'} 
+                      alt={formData.name || 'Producto'} 
+                      className="pp-card-img-preview"
+                      onError={(e) => e.target.src = '/images/producto_gen.webp'}
+                    />
+                    {formData.badge && (
+                      <div 
+                        className="pp-badge-preview"
+                        style={{ background: formData.badgeBg, color: formData.badgeColor }}
+                      >
+                        {formData.badge}
+                      </div>
+                    )}
+                  </div>
+                  <div className="pp-card-info-preview">
+                    <p className="pp-category-preview">{formData.category || 'Categoría'}</p>
+                    <h3 className="pp-name-preview">{formData.name || 'Nombre del producto'}</h3>
+                    <span className="pp-price-preview">
+                      ₡{formData.price ? Math.round(Number(formData.price)).toLocaleString('es-CR') : '0'}
+                    </span>
+                  </div>
+                  <div className="pp-divider-preview" />
+                  <button className="pp-card-btn-preview" type="button">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+                    </svg>
+                    Agregar
+                  </button>
                 </div>
-                <div className="admin-preview-info">
-                  <p 
-                    className="admin-preview-category"
-                    style={{ color: formData.categoryColor, background: formData.categoryBg }}
-                  >
-                    {formData.category || 'Categoría'}
-                  </p>
-                  <h3 className="admin-preview-name">{formData.name || 'Nombre del producto'}</h3>
-                  <span className="admin-preview-price">
-                    ₡{formData.price ? Math.round(Number(formData.price)).toLocaleString('es-CR') : '0'}
-                  </span>
-                </div>
-                <div className="admin-preview-divider" />
-                <button className="admin-preview-btn" type="button">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
-                  </svg>
-                  Agregar
-                </button>
               </div>
             </div>
           </div>
