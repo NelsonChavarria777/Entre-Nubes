@@ -131,6 +131,225 @@
   gap: 16px;
 }
 
+/* Small Button */
+.admin-btn-small {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+/* Category Selector */
+.admin-category-selector {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.admin-category-selector select {
+  flex: 1;
+}
+
+.admin-add-category {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-add-category input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.admin-add-category input:focus {
+  outline: none;
+  border-color: #8DC63F;
+}
+
+.admin-add-category-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Image Upload */
+.admin-image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: rgba(141, 198, 63, 0.1);
+  border: 2px dashed rgba(141, 198, 63, 0.3);
+  border-radius: 10px;
+  color: #8DC63F;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-upload-label:hover {
+  background: rgba(141, 198, 63, 0.15);
+  border-color: rgba(141, 198, 63, 0.5);
+}
+
+.admin-upload-info {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+
+.admin-upload-error {
+  background: rgba(255, 57, 19, 0.1);
+  border: 1px solid rgba(255, 57, 19, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #ff6347;
+  font-size: 13px;
+}
+
+.admin-image-url-input {
+  margin-top: 8px;
+}
+
+/* Badge Customization */
+.admin-badge-suggestions {
+  margin-bottom: 12px;
+}
+
+.admin-badge-suggestions-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.admin-badge-suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-badge-suggestion {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.admin-badge-suggestion:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-badge-suggestion.active {
+  background: rgba(141, 198, 63, 0.2);
+  border-color: #8DC63F;
+  color: #8DC63F;
+}
+
+.admin-badge-input {
+  margin-bottom: 12px;
+}
+
+.admin-badge-colors {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-color-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-color-picker label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.admin-color-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.admin-color-input-wrapper input[type="color"] {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.admin-color-input-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.admin-color-input-wrapper input[type="color"]::-webkit-color-swatch {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+}
+
+.admin-color-value {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: monospace;
+  min-width: 60px;
+}
+
+.admin-badge-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.admin-badge-preview-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.admin-badge {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Image Preview */
 .admin-image-preview {
   width: 100%;
@@ -259,5 +478,18 @@
   
   .admin-form-actions .admin-btn {
     width: 100%;
+  }
+  
+  .admin-category-selector {
+    flex-direction: column;
+  }
+  
+  .admin-badge-colors {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .admin-color-picker {
+    justify-content: space-between;
   }
 }

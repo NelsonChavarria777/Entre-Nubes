@@ -3,26 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import './AdminProductForm.css';
 
-const CATEGORIES = [
-  'Pipas',
-  'Molinillos', 
-  'Papeles',
-  'Vaporizadores',
-  'Almacenamiento',
-  'Encendedores',
-  'Accesorios'
-];
-
-const BADGES = [
-  { value: '', label: 'Sin badge' },
-  { value: 'Nuevo', label: 'Nuevo' },
-  { value: 'OFERTA', label: 'Oferta' },
-  { value: 'Popular', label: 'Popular' },
-  { value: 'Premium', label: 'Premium' },
-  { value: 'Pack x3', label: 'Pack x3' },
-  { value: 'Pack x5', label: 'Pack x5' },
-  { value: 'Pack x10', label: 'Pack x10' }
-];
+// Badges predefinidos como sugerencias
+const BADGE_SUGGESTIONS = ['Nuevo', 'OFERTA', 'Popular', 'Premium', 'Pack x3', 'Pack x5', 'Pack x10', 'Limited', 'Hot'];
 
 function AdminProductForm() {
   const { id } = useParams();
@@ -49,14 +31,40 @@ function AdminProductForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [variantInput, setVariantInput] = useState('');
+  
+  // Estados para categorías dinámicas
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState('');
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  
+  // Estados para subida de imágenes
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://entre-nubes-ten.vercel.app';
 
   useEffect(() => {
+    fetchCategories();
     if (isEditing) {
       fetchProduct();
     }
   }, [id]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/categorias`);
+      if (response.ok) {
+        const cats = await response.json();
+        setCategories(cats);
+        // Si no hay categoría seleccionada y hay categorías disponibles, seleccionar la primera
+        if (!formData.category && cats.length > 0) {
+          setFormData(prev => ({ ...prev, category: cats[0] }));
+        }
+      }
+    } catch (err) {
+      console.error('Error cargando categorías:', err);
+    }
+  };
 
   const fetchProduct = async () => {
     setLoading(true);
@@ -78,6 +86,52 @@ function AdminProductForm() {
     }
   };
 
+  const handleAddCategory = () => {
+    if (newCategory.trim() && !categories.includes(newCategory.trim())) {
+      const updatedCategories = [...categories, newCategory.trim()];
+      setCategories(updatedCategories);
+      setFormData(prev => ({ ...prev, category: newCategory.trim() }));
+      setNewCategory('');
+      setShowAddCategory(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validar que sea WebP
+    if (!file.name.endsWith('.webp')) {
+      setUploadError('Solo se permiten imágenes en formato WebP');
+      return;
+    }
+
+    setUploadingImage(true);
+    setUploadError('');
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('image', file);
+
+      const response = await fetch(`${API_URL}/api/upload`, {
+        method: 'POST',
+        body: formDataUpload
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al subir la imagen');
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, image: data.url }));
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -86,40 +140,35 @@ function AdminProductForm() {
     }));
   };
 
-  const handleBadgeChange = (e) => {
-    const badge = e.target.value;
-    let badgeBg = '#8DC63F';
-    let badgeColor = '#fff';
+  const handleBadgeTextChange = (e) => {
+    setFormData(prev => ({ ...prev, badge: e.target.value }));
+  };
 
-    // Configurar colores automáticamente según el badge
-    switch (badge) {
-      case 'Nuevo':
-        badgeBg = '#D3FF0B';
-        badgeColor = '#000';
-        break;
-      case 'OFERTA':
-      case 'Oferta':
-        badgeBg = '#FF3913';
-        badgeColor = '#fff';
-        break;
-      case 'Popular':
-        badgeBg = '#8DC63F';
-        badgeColor = '#fff';
-        break;
-      case 'Premium':
-        badgeBg = '#000';
-        badgeColor = '#D3FF0B';
-        break;
-      default:
-        badgeBg = '#8DC63F';
-        badgeColor = '#fff';
-    }
+  const handleBadgeColorChange = (colorType, value) => {
+    setFormData(prev => ({ ...prev, [colorType]: value }));
+  };
 
+  const applyBadgeSuggestion = (suggestion) => {
+    // Colores predefinidos según el tipo de badge
+    const colorMap = {
+      'Nuevo': { bg: '#D3FF0B', color: '#000' },
+      'OFERTA': { bg: '#FF3913', color: '#fff' },
+      'Popular': { bg: '#8DC63F', color: '#fff' },
+      'Premium': { bg: '#000', color: '#D3FF0B' },
+      'Pack x3': { bg: '#8DC63F', color: '#fff' },
+      'Pack x5': { bg: '#8DC63F', color: '#fff' },
+      'Pack x10': { bg: '#8DC63F', color: '#fff' },
+      'Limited': { bg: '#FF3913', color: '#fff' },
+      'Hot': { bg: '#FF3913', color: '#fff' }
+    };
+
+    const colors = colorMap[suggestion] || { bg: '#8DC63F', color: '#fff' };
+    
     setFormData(prev => ({
       ...prev,
-      badge,
-      badgeBg,
-      badgeColor
+      badge: suggestion,
+      badgeBg: colors.bg,
+      badgeColor: colors.color
     }));
   };
 
@@ -228,17 +277,56 @@ function AdminProductForm() {
 
               <div className="admin-form-group">
                 <label htmlFor="category">Categoría *</label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  required
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                <div className="admin-category-selector">
+                  <select
+                    id="category"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    required
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCategory(!showAddCategory)}
+                    className="admin-btn admin-btn-small admin-btn-secondary"
+                    title="Agregar nueva categoría"
+                  >
+                    ➕ Nueva
+                  </button>
+                </div>
+                
+                {showAddCategory && (
+                  <div className="admin-add-category">
+                    <input
+                      type="text"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      placeholder="Nombre de la nueva categoría"
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCategory())}
+                    />
+                    <div className="admin-add-category-actions">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddCategory(false)}
+                        className="admin-btn admin-btn-small admin-btn-secondary"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddCategory}
+                        className="admin-btn admin-btn-small admin-btn-primary"
+                        disabled={!newCategory.trim()}
+                      >
+                        Agregar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="admin-form-group">
@@ -304,7 +392,37 @@ function AdminProductForm() {
               <h3 className="admin-form-section-title">Imágenes y Badge</h3>
 
               <div className="admin-form-group">
-                <label htmlFor="image">URL Imagen principal *</label>
+                <label>Imagen principal *</label>
+                
+                {/* Upload WebP */}
+                <div className="admin-image-upload">
+                  <input
+                    type="file"
+                    id="image-upload"
+                    accept=".webp"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <label htmlFor="image-upload" className="admin-upload-label">
+                    {uploadingImage ? (
+                      <>
+                        <span className="admin-spinner-small"></span>
+                        Subiendo...
+                      </>
+                    ) : (
+                      <>
+                        📁 Subir imagen WebP
+                      </>
+                    )}
+                  </label>
+                  <span className="admin-upload-info">Formato requerido: WebP (máx 5MB)</span>
+                </div>
+                
+                {uploadError && (
+                  <div className="admin-upload-error">⚠️ {uploadError}</div>
+                )}
+                
+                {/* URL Input */}
                 <input
                   type="text"
                   id="image"
@@ -313,7 +431,9 @@ function AdminProductForm() {
                   onChange={handleChange}
                   required
                   placeholder="/images/producto_gen.webp"
+                  className="admin-image-url-input"
                 />
+                
                 {formData.image && (
                   <img 
                     src={formData.image} 
@@ -324,20 +444,80 @@ function AdminProductForm() {
                 )}
               </div>
 
-              <div className="admin-form-row">
-                <div className="admin-form-group">
-                  <label htmlFor="badge">Badge</label>
-                  <select
-                    id="badge"
-                    name="badge"
-                    value={formData.badge}
-                    onChange={handleBadgeChange}
-                  >
-                    {BADGES.map(badge => (
-                      <option key={badge.value} value={badge.value}>{badge.label}</option>
+              <div className="admin-form-group">
+                <label>Badge personalizable</label>
+                
+                {/* Suggestions */}
+                <div className="admin-badge-suggestions">
+                  <span className="admin-badge-suggestions-label">Sugerencias:</span>
+                  <div className="admin-badge-suggestions-list">
+                    {BADGE_SUGGESTIONS.map(suggestion => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => applyBadgeSuggestion(suggestion)}
+                        className={`admin-badge-suggestion ${formData.badge === suggestion ? 'active' : ''}`}
+                      >
+                        {suggestion}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
+                
+                {/* Badge Text Input */}
+                <input
+                  type="text"
+                  id="badge"
+                  name="badge"
+                  value={formData.badge}
+                  onChange={handleBadgeTextChange}
+                  placeholder="Texto del badge (ej: Nuevo, Oferta, etc.)"
+                  className="admin-badge-input"
+                />
+                
+                {/* Color Pickers */}
+                <div className="admin-badge-colors">
+                  <div className="admin-color-picker">
+                    <label htmlFor="badgeBg">Fondo:</label>
+                    <div className="admin-color-input-wrapper">
+                      <input
+                        type="color"
+                        id="badgeBg"
+                        value={formData.badgeBg}
+                        onChange={(e) => handleBadgeColorChange('badgeBg', e.target.value)}
+                      />
+                      <span className="admin-color-value">{formData.badgeBg}</span>
+                    </div>
+                  </div>
+                  <div className="admin-color-picker">
+                    <label htmlFor="badgeColor">Texto:</label>
+                    <div className="admin-color-input-wrapper">
+                      <input
+                        type="color"
+                        id="badgeColor"
+                        value={formData.badgeColor}
+                        onChange={(e) => handleBadgeColorChange('badgeColor', e.target.value)}
+                      />
+                      <span className="admin-color-value">{formData.badgeColor}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Badge Preview */}
+                {formData.badge && (
+                  <div className="admin-badge-preview">
+                    <span className="admin-badge-preview-label">Vista previa:</span>
+                    <span 
+                      className="admin-badge"
+                      style={{
+                        backgroundColor: formData.badgeBg,
+                        color: formData.badgeColor
+                      }}
+                    >
+                      {formData.badge}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Variants */}

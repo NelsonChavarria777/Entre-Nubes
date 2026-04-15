@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 import { readFileSync, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import multer from "multer";
 
 dotenv.config();
 
@@ -30,6 +31,32 @@ const transporter = nodemailer.createTransport({
     user: EMAIL_USER,
     pass: EMAIL_PASS,
   },
+});
+
+// Configuración de multer para subida de imágenes
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, join(__dirname, "data/images"));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + ".webp");
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  // Verificar que sea WebP
+  if (file.mimetype === "image/webp") {
+    cb(null, true);
+  } else {
+    cb(new Error("Solo se permiten imágenes en formato WebP"), false);
+  }
+};
+
+const upload = multer({ 
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB max
 });
 
 const app = express();
@@ -78,6 +105,20 @@ app.delete("/api/productos/:id", (req, res) => {
   if (filtrados.length === productos.length) return res.status(404).json({ error: "Producto no encontrado" });
   guardarProductos(filtrados);
   res.json({ mensaje: "Producto eliminado" });
+});
+
+// POST subir imagen WebP
+app.post("/api/upload", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No se subió ninguna imagen o el formato no es WebP" });
+  }
+  
+  const imageUrl = `/images/${req.file.filename}`;
+  res.json({ 
+    success: true, 
+    url: imageUrl,
+    filename: req.file.filename 
+  });
 });
 
 // POST enviar pedido por email
