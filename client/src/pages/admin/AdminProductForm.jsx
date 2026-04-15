@@ -16,7 +16,7 @@ function AdminProductForm() {
     price: '',
     discount: '',
     amount: '',
-    category: CATEGORIES[0],
+    category: '',
     description: '',
     badge: '',
     badgeBg: '#8DC63F',
