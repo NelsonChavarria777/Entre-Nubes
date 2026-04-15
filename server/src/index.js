@@ -107,6 +107,13 @@ app.delete("/api/productos/:id", (req, res) => {
   res.json({ mensaje: "Producto eliminado" });
 });
 
+// GET categorías únicas
+app.get("/api/categorias", (req, res) => {
+  const productos = leerProductos();
+  const categorias = [...new Set(productos.map(p => p.category).filter(Boolean))].sort();
+  res.json(categorias);
+});
+
 // POST subir imagen WebP
 app.post("/api/upload", upload.single("image"), (req, res) => {
   if (!req.file) {
