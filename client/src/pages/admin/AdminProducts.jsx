@@ -3,6 +3,19 @@ import { Link } from 'react-router-dom';
 import AdminLayout from './AdminLayout';
 import './AdminProducts.css';
 
+// Iconos para toggle de vista
+const GridIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+  </svg>
+);
+const ListIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+    <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+  </svg>
+);
+
 function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -10,6 +23,7 @@ function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
+  const [view, setView] = useState('grid'); // 'grid' | 'list'
   const [deleteModal, setDeleteModal] = useState({ show: false, product: null });
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://entre-nubes-ten.vercel.app';
@@ -127,6 +141,23 @@ function AdminProducts() {
             ))}
           </select>
 
+          <div className="admin-view-toggle">
+            <button 
+              className={`admin-view-btn${view === 'grid' ? ' active' : ''}`} 
+              onClick={() => setView('grid')}
+              title="Vista de grid"
+            >
+              <GridIcon />
+            </button>
+            <button 
+              className={`admin-view-btn${view === 'list' ? ' active' : ''}`} 
+              onClick={() => setView('list')}
+              title="Vista de lista"
+            >
+              <ListIcon />
+            </button>
+          </div>
+
           <Link to="/administracion/productos/nuevo" className="admin-btn admin-btn-primary">
             <span>➕</span>
             Nuevo Producto
@@ -138,7 +169,7 @@ function AdminProducts() {
           Mostrando {filteredProducts.length} de {products.length} productos
         </div>
 
-        {/* Products Grid */}
+        {/* Products Grid/List */}
         {filteredProducts.length === 0 ? (
           <div className="admin-empty-state">
             <span className="admin-empty-icon">📭</span>
@@ -152,7 +183,7 @@ function AdminProducts() {
               </button>
             )}
           </div>
-        ) : (
+        ) : view === 'grid' ? (
           <div className="admin-products-grid">
             {filteredProducts.map((product) => (
               <div key={product.id} className="admin-product-card">
@@ -189,6 +220,55 @@ function AdminProducts() {
                   >
                     🗑️ Eliminar
                   </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="admin-products-list">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="admin-product-list-card">
+                <div className="admin-product-list-image">
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    onError={(e) => e.target.src = '/images/producto_gen.webp'}
+                  />
+                  {product.discount && (
+                    <span className="admin-product-discount">-{product.discount}%</span>
+                  )}
+                </div>
+                
+                <div className="admin-product-list-info">
+                  <div className="admin-product-list-main">
+                    <span className="admin-product-category">{product.category}</span>
+                    <h3 className="admin-product-list-title">{product.name}</h3>
+                    <p className="admin-product-list-description">
+                      {product.description?.substring(0, 100)}{product.description?.length > 100 ? '...' : ''}
+                    </p>
+                  </div>
+                  <div className="admin-product-list-footer">
+                    <div className="admin-product-list-meta">
+                      <p className="admin-product-price">{formatCurrency(product.price)}</p>
+                      <p className="admin-product-stock">
+                        Stock: <span className={product.amount < 5 ? 'low' : ''}>{product.amount} unidades</span>
+                      </p>
+                    </div>
+                    <div className="admin-product-list-actions">
+                      <Link 
+                        to={`/administracion/productos/editar/${product.id}`}
+                        className="admin-btn admin-btn-edit"
+                      >
+                        ✏️ Editar
+                      </Link>
+                      <button 
+                        onClick={() => handleDeleteClick(product)}
+                        className="admin-btn admin-btn-delete"
+                      >
+                        🗑️ Eliminar
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
