@@ -68,6 +68,14 @@ function AdminProducts() {
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
+    // Ordenar por posición (menor primero), luego por ID como fallback
+    filtered = [...filtered].sort((a, b) => {
+      const posA = a.position ?? 999999;
+      const posB = b.position ?? 999999;
+      if (posA !== posB) return posA - posB;
+      return a.id - b.id;
+    });
+
     setFilteredProducts(filtered);
   };
 

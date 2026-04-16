@@ -16,6 +16,7 @@ function AdminProductForm() {
     price: '',
     discount: '',
     amount: '',
+    position: 0,
     category: '',
     description: '',
     badge: '',
@@ -82,7 +83,8 @@ function AdminProductForm() {
         ...product,
         price: product.price.toString(),
         discount: product.discount?.toString() || '',
-        amount: product.amount.toString()
+        amount: product.amount.toString(),
+        position: product.position ?? 0
       });
     } catch (err) {
       setError(err.message);
@@ -385,6 +387,22 @@ function AdminProductForm() {
                     onChange={handleChange}
                     min="0"
                     max="99"
+                    placeholder="0"
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label htmlFor="position">
+                    Posición (orden)
+                    <span className="admin-help-text">Menor = aparece primero</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="position"
+                    name="position"
+                    value={formData.position}
+                    onChange={handleChange}
+                    min="0"
                     placeholder="0"
                   />
                 </div>

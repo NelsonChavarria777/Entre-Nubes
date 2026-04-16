@@ -191,6 +191,7 @@ export default function ProductPage({ title = "Todos los Productos" }) {
     return matchSearch && matchCat;
   });
 
+  if (sort === "default")    filtered = [...filtered].sort((a,b) => (a.position ?? 999999) - (b.position ?? 999999) || a.id - b.id);
   if (sort === "price-asc")  filtered = [...filtered].sort((a,b) => a.price - b.price);
   if (sort === "price-desc") filtered = [...filtered].sort((a,b) => b.price - a.price);
   if (sort === "name")       filtered = [...filtered].sort((a,b) => a.name.localeCompare(b.name));
