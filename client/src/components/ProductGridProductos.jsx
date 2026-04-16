@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext.jsx";
+import { useAuth } from "../contexts/AuthContext.jsx";
 import "./ProductGridProductos.css";
 
 const SORT_OPTIONS = [
@@ -9,6 +10,35 @@ const SORT_OPTIONS = [
   { value:"price-desc", label:"Precio: mayor a menor" },
   { value:"name",       label:"Nombre A-Z" },
 ];
+
+// Icono de drag
+const DragIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/>
+    <circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>
+  </svg>
+);
+
+// Icono de guardar
+const SaveIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+  </svg>
+);
+
+// Icono de edición
+const EditIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+
+// Icono de check
+const CheckCircleIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+  </svg>
+);
 
 const CartIcon  = ({ size=14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -165,23 +195,88 @@ function Pagination({ page, totalPages, onPageChange }) {
 }
 
 export default function ProductPage({ title = "Todos los Productos" }) {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null);
-  const [query, setQuery]       = useState("");
-  const [category, setCategory] = useState("Todas");
-  const [sort, setSort]         = useState("default");
-  const [view, setView]         = useState("grid");
-  const [page, setPage]         = useState(1);
+  const [products, setProducts]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
+  const [query, setQuery]         = useState("");
+  const [category, setCategory]   = useState("Todas");
+  const [sort, setSort]           = useState("default");
+  const [view, setView]           = useState("grid");
+  const [page, setPage]           = useState(1);
+  const [editMode, setEditMode]   = useState(false); // Modo edición para admins
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [draggingId, setDraggingId] = useState(null);
+  const { user } = useAuth(); // Detectar si es admin
   const PER_PAGE = 20;
+  const apiUrl = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
     fetch(`${apiUrl}/api/productos`)
       .then(res => res.json())
       .then(data => { setProducts(data); setLoading(false); })
       .catch(() => { setError("No se pudo cargar los productos"); setLoading(false); });
   }, []);
+
+  // Guardar el nuevo orden de productos
+  const saveOrder = async () => {
+    if (!user?.isAdmin) return;
+    setSavingOrder(true);
+    
+    try {
+      // Actualizar posiciones localmente primero
+      const updatedProducts = filtered.map((p, index) => ({
+        ...p,
+        position: index + 1
+      }));
+      
+      // Aquí podrías hacer un batch update al backend
+      // Por ahora solo actualizamos el estado local
+      setProducts(prev => {
+        const newProducts = [...prev];
+        updatedProducts.forEach(updated => {
+          const idx = newProducts.findIndex(p => p.id === updated.id);
+          if (idx !== -1) newProducts[idx] = updated;
+        });
+        return newProducts;
+      });
+      
+      setEditMode(false);
+      alert('Orden guardado correctamente');
+    } catch (err) {
+      alert('Error al guardar el orden');
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
+  // Handlers de Drag and Drop
+  const handleDragStart = (e, productId) => {
+    setDraggingId(productId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, targetId) => {
+    e.preventDefault();
+    if (!draggingId || draggingId === targetId) return;
+    
+    // Reordenar visualmente
+    const dragIndex = filtered.findIndex(p => p.id === draggingId);
+    const targetIndex = filtered.findIndex(p => p.id === targetId);
+    
+    if (dragIndex === -1 || targetIndex === -1) return;
+    
+    const newFiltered = [...filtered];
+    const [draggedItem] = newFiltered.splice(dragIndex, 1);
+    newFiltered.splice(targetIndex, 0, draggedItem);
+    
+    // Actualizar el estado de products manteniendo el orden
+    const otherProducts = products.filter(p => !newFiltered.find(np => np.id === p.id));
+    setProducts([...otherProducts, ...newFiltered.map((p, i) => ({ ...p, position: i + 1 }))]);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
+  };
 
   const CATEGORIES = ["Todas", ...Array.from(new Set(products.map(p => p.category)))];
 
@@ -237,30 +332,102 @@ export default function ProductPage({ title = "Todos los Productos" }) {
       <div className="pp-toolbar">
         <div className="pp-search-wrap">
           <SearchIcon />
-          <input className="pp-search-input" type="text" placeholder="Buscar producto..."
-            value={query} onChange={e => handleSearch(e.target.value)} />
+          <input 
+            className="pp-search-input" 
+            type="text" 
+            placeholder="Buscar producto..."
+            value={query} 
+            onChange={e => handleSearch(e.target.value)}
+            disabled={editMode}
+          />
           {query && <button className="pp-clear-btn" onClick={() => handleSearch("")}>✕</button>}
         </div>
         <div className="pp-select-wrap hide-mobile">
-          <select className="pp-select" value={category} onChange={e => handleCategory(e.target.value)}>
+          <select 
+            className="pp-select" 
+            value={category} 
+            onChange={e => handleCategory(e.target.value)}
+            disabled={editMode}
+          >
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div className="pp-sort-wrap hide-mobile">
-          <select className="pp-select" value={sort} onChange={e => handleSort(e.target.value)}>
+          <select 
+            className="pp-select" 
+            value={sort} 
+            onChange={e => handleSort(e.target.value)}
+            disabled={editMode}
+          >
             {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
         </div>
         <div className="pp-view-toggle">
-          <button className={`pp-view-btn${view === "grid" ? " active" : ""}`} onClick={() => setView("grid")}><GridIcon /></button>
-          <button className={`pp-view-btn${view === "list" ? " active" : ""}`} onClick={() => setView("list")}><ListIcon /></button>
+          <button 
+            className={`pp-view-btn${view === "grid" ? " active" : ""}`} 
+            onClick={() => setView("grid")}
+            disabled={editMode}
+          >
+            <GridIcon />
+          </button>
+          <button 
+            className={`pp-view-btn${view === "list" ? " active" : ""}`} 
+            onClick={() => setView("list")}
+            disabled={editMode}
+          >
+            <ListIcon />
+          </button>
         </div>
+        
+        {/* Botón de edición para admins */}
+        {user?.isAdmin && (
+          <div className="pp-admin-controls">
+            {!editMode ? (
+              <button 
+                className="pp-edit-order-btn" 
+                onClick={() => {
+                  setEditMode(true);
+                  setSort("default");
+                  setQuery("");
+                  setCategory("Todas");
+                }}
+                title="Editar orden de productos"
+              >
+                <EditIcon /> Editar orden
+              </button>
+            ) : (
+              <div className="pp-edit-actions">
+                <button 
+                  className="pp-save-order-btn" 
+                  onClick={saveOrder}
+                  disabled={savingOrder}
+                >
+                  {savingOrder ? (
+                    <>Guardando...</>
+                  ) : (
+                    <><SaveIcon /> Guardar</>
+                  )}
+                </button>
+                <button 
+                  className="pp-cancel-order-btn" 
+                  onClick={() => setEditMode(false)}
+                  disabled={savingOrder}
+                >
+                  Cancelar
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="pp-pills">
         {CATEGORIES.map(c => (
           <button key={c} className={`pp-pill${category === c ? " active" : ""}`}
-            onClick={() => handleCategory(c)}>{c}</button>
+            onClick={() => handleCategory(c)}
+          >
+            {c}
+          </button>
         ))}
       </div>
 
@@ -270,6 +437,13 @@ export default function ProductPage({ title = "Todos los Productos" }) {
         </select>
       </div>
 
+      {editMode && (
+        <div className="pp-edit-banner">
+          <DragIcon />
+          <span>Modo edición: Arrastra los productos para cambiar su orden</span>
+        </div>
+      )}
+
       {filtered.length === 0 ? (
         <div className="pp-empty">
           <div style={{ fontSize:"40px", marginBottom:"12px" }}>🔍</div>
@@ -277,19 +451,52 @@ export default function ProductPage({ title = "Todos los Productos" }) {
           <p className="pp-empty-sub">Intenta con otro nombre o categoría</p>
         </div>
       ) : view === "grid" ? (
-        <div className="pp-grid">
-          {shown.map(p => <GridCard key={p.id} product={p} />)}
+        <div className={`pp-grid${editMode ? " pp-editing" : ""}`}>
+          {shown.map(p => (
+            <div 
+              key={p.id}
+              className={`pp-drag-wrapper${draggingId === p.id ? " pp-dragging" : ""}`}
+              draggable={editMode}
+              onDragStart={(e) => handleDragStart(e, p.id)}
+              onDragOver={(e) => handleDragOver(e, p.id)}
+              onDragEnd={handleDragEnd}
+            >
+              {editMode && (
+                <div className="pp-drag-handle">
+                  <DragIcon />
+                  <span className="pp-position-badge">{filtered.findIndex(fp => fp.id === p.id) + 1}</span>
+                </div>
+              )}
+              <GridCard product={p} />
+            </div>
+          ))}
         </div>
       ) : (
-        <div className="pp-list">
-          {shown.map(p => <ListCard key={p.id} product={p} />)}
+        <div className={`pp-list${editMode ? " pp-editing" : ""}`}>
+          {shown.map(p => (
+            <div 
+              key={p.id}
+              className={`pp-drag-wrapper${draggingId === p.id ? " pp-dragging" : ""}`}
+              draggable={editMode}
+              onDragStart={(e) => handleDragStart(e, p.id)}
+              onDragOver={(e) => handleDragOver(e, p.id)}
+              onDragEnd={handleDragEnd}
+            >
+              {editMode && (
+                <div className="pp-drag-handle pp-list-drag-handle">
+                  <DragIcon />
+                  <span className="pp-position-badge">{filtered.findIndex(fp => fp.id === p.id) + 1}</span>
+                </div>
+              )}
+              <ListCard product={p} />
+            </div>
+          ))}
         </div>
       )}
 
       {filtered.length > PER_PAGE && (
         <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
-
     </div>
   );
 }
