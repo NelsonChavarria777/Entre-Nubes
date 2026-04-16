@@ -16,6 +16,28 @@ const ListIcon = () => (
   </svg>
 );
 
+// Icono de drag
+const DragIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/>
+    <circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>
+  </svg>
+);
+
+// Icono de guardar
+const SaveIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+  </svg>
+);
+
+// Icono de edición
+const EditIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+
 function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -25,6 +47,9 @@ function AdminProducts() {
   const [categories, setCategories] = useState([]);
   const [view, setView] = useState('grid'); // 'grid' | 'list'
   const [deleteModal, setDeleteModal] = useState({ show: false, product: null });
+  const [editMode, setEditMode] = useState(false); // Modo edición para reordenar
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [draggingId, setDraggingId] = useState(null);
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://entre-nubes-ten.vercel.app';
 
@@ -56,7 +81,7 @@ function AdminProducts() {
   const filterProducts = () => {
     let filtered = products;
 
-    if (searchTerm) {
+    if (searchTerm && !editMode) { // No filtrar por búsqueda en modo edición
       filtered = filtered.filter(p => 
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,7 +89,7 @@ function AdminProducts() {
       );
     }
 
-    if (selectedCategory !== 'all') {
+    if (selectedCategory !== 'all' && !editMode) { // No filtrar por categoría en modo edición
       filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
@@ -77,6 +102,63 @@ function AdminProducts() {
     });
 
     setFilteredProducts(filtered);
+  };
+
+  // Guardar el nuevo orden de productos
+  const saveOrder = async () => {
+    setSavingOrder(true);
+    
+    try {
+      // Actualizar posiciones localmente
+      const updatedProducts = filteredProducts.map((p, index) => ({
+        ...p,
+        position: index + 1
+      }));
+      
+      setProducts(prev => {
+        const newProducts = [...prev];
+        updatedProducts.forEach(updated => {
+          const idx = newProducts.findIndex(p => p.id === updated.id);
+          if (idx !== -1) newProducts[idx] = updated;
+        });
+        return newProducts;
+      });
+      
+      setEditMode(false);
+      alert('Orden guardado correctamente');
+    } catch (err) {
+      alert('Error al guardar el orden');
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
+  // Handlers de Drag and Drop
+  const handleDragStart = (e, productId) => {
+    setDraggingId(productId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, targetId) => {
+    e.preventDefault();
+    if (!draggingId || draggingId === targetId) return;
+    
+    // Reordenar visualmente
+    const dragIndex = filteredProducts.findIndex(p => p.id === draggingId);
+    const targetIndex = filteredProducts.findIndex(p => p.id === targetId);
+    
+    if (dragIndex === -1 || targetIndex === -1) return;
+    
+    const newFiltered = [...filteredProducts];
+    const [draggedItem] = newFiltered.splice(dragIndex, 1);
+    newFiltered.splice(targetIndex, 0, draggedItem);
+    
+    // Actualizar el estado de products manteniendo el orden
+    setFilteredProducts(newFiltered.map((p, i) => ({ ...p, position: i + 1 })));
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
   };
 
   const handleDeleteClick = (product) => {
@@ -166,15 +248,59 @@ function AdminProducts() {
             </button>
           </div>
 
+          {/* Botón de edición de orden */}
+          {!editMode ? (
+            <button 
+              className="admin-btn admin-btn-edit-mode" 
+              onClick={() => {
+                setEditMode(true);
+                setSearchTerm('');
+                setSelectedCategory('all');
+              }}
+              title="Editar orden de productos"
+            >
+              <EditIcon /> Editar orden
+            </button>
+          ) : (
+            <div className="admin-edit-actions">
+              <button 
+                className="admin-btn admin-btn-save-order" 
+                onClick={saveOrder}
+                disabled={savingOrder}
+              >
+                {savingOrder ? 'Guardando...' : <><SaveIcon /> Guardar</>}
+              </button>
+              <button 
+                className="admin-btn admin-btn-cancel" 
+                onClick={() => setEditMode(false)}
+                disabled={savingOrder}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+
           <Link to="/administracion/productos/nuevo" className="admin-btn admin-btn-primary">
             <span>➕</span>
             Nuevo Producto
           </Link>
         </div>
 
+        {/* Banner de modo edición */}
+        {editMode && (
+          <div className="admin-edit-banner">
+            <DragIcon />
+            <span>Modo edición: Arrastra los productos para cambiar su orden</span>
+          </div>
+        )}
+
         {/* Products Count */}
         <div className="admin-results-count">
-          Mostrando {filteredProducts.length} de {products.length} productos
+          {editMode ? (
+            <span>Reordenando {filteredProducts.length} productos</span>
+          ) : (
+            <span>Mostrando {filteredProducts.length} de {products.length} productos</span>
+          )}
         </div>
 
         {/* Products Grid/List */}
@@ -192,53 +318,88 @@ function AdminProducts() {
             )}
           </div>
         ) : view === 'grid' ? (
-          <div className="admin-products-grid">
+          <div className={`admin-products-grid${editMode ? ' admin-editing' : ''}`}>
             {filteredProducts.map((product) => (
-              <div key={product.id} className="admin-product-card">
-                <div className="admin-product-image">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    onError={(e) => e.target.src = '/images/producto_gen.webp'}
-                  />
-                  {product.discount && (
-                    <span className="admin-product-discount">-{product.discount}%</span>
-                  )}
-                </div>
-                
-                <div className="admin-product-info">
-                  <span className="admin-product-category">{product.category}</span>
-                  <h3 className="admin-product-title">{product.name}</h3>
-                  <p className="admin-product-price">{formatCurrency(product.price)}</p>
-                  <p className="admin-product-stock">
-                    Stock: <span className={product.amount < 5 ? 'low' : ''}>{product.amount} unidades</span>
-                  </p>
-                </div>
+              <div 
+                key={product.id} 
+                className={`admin-drag-wrapper${draggingId === product.id ? ' admin-dragging' : ''}`}
+                draggable={editMode}
+                onDragStart={(e) => handleDragStart(e, product.id)}
+                onDragOver={(e) => handleDragOver(e, product.id)}
+                onDragEnd={handleDragEnd}
+              >
+                {editMode && (
+                  <div className="admin-drag-handle">
+                    <DragIcon />
+                    <span className="admin-position-badge">
+                      {filteredProducts.findIndex(fp => fp.id === product.id) + 1}
+                    </span>
+                  </div>
+                )}
+                <div className="admin-product-card">
+                  <div className="admin-product-image">
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      onError={(e) => e.target.src = '/images/producto_gen.webp'}
+                    />
+                    {product.discount && (
+                      <span className="admin-product-discount">-{product.discount}%</span>
+                    )}
+                  </div>
+                  
+                  <div className="admin-product-info">
+                    <span className="admin-product-category">{product.category}</span>
+                    <h3 className="admin-product-title">{product.name}</h3>
+                    <p className="admin-product-price">{formatCurrency(product.price)}</p>
+                    <p className="admin-product-stock">
+                      Stock: <span className={product.amount < 5 ? 'low' : ''}>{product.amount} unidades</span>
+                    </p>
+                  </div>
 
-                <div className="admin-product-actions">
-                  <Link 
-                    to={`/administracion/productos/editar/${product.id}`}
-                    className="admin-btn admin-btn-edit"
-                  >
-                    ✏️ Editar
-                  </Link>
-                  <button 
-                    onClick={() => handleDeleteClick(product)}
-                    className="admin-btn admin-btn-delete"
-                  >
-                    🗑️ Eliminar
-                  </button>
+                  {!editMode && (
+                    <div className="admin-product-actions">
+                      <Link 
+                        to={`/administracion/productos/editar/${product.id}`}
+                        className="admin-btn admin-btn-edit"
+                      >
+                        ✏️ Editar
+                      </Link>
+                      <button 
+                        onClick={() => handleDeleteClick(product)}
+                        className="admin-btn admin-btn-delete"
+                      >
+                        🗑️ Eliminar
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="admin-products-list">
+          <div className={`admin-products-list${editMode ? ' admin-editing' : ''}`}>
             {filteredProducts.map((product) => (
-              <div key={product.id} className="admin-product-list-card">
-                <div className="admin-product-list-image">
-                  <img 
-                    src={product.image} 
+              <div 
+                key={product.id} 
+                className={`admin-drag-wrapper${draggingId === product.id ? ' admin-dragging' : ''}`}
+                draggable={editMode}
+                onDragStart={(e) => handleDragStart(e, product.id)}
+                onDragOver={(e) => handleDragOver(e, product.id)}
+                onDragEnd={handleDragEnd}
+              >
+                {editMode && (
+                  <div className="admin-drag-handle admin-list-drag-handle">
+                    <DragIcon />
+                    <span className="admin-position-badge">
+                      {filteredProducts.findIndex(fp => fp.id === product.id) + 1}
+                    </span>
+                  </div>
+                )}
+                <div className="admin-product-list-card">
+                  <div className="admin-product-list-image">
+                    <img 
+                      src={product.image} 
                     alt={product.name}
                     onError={(e) => e.target.src = '/images/producto_gen.webp'}
                   />
@@ -262,22 +423,25 @@ function AdminProducts() {
                         Stock: <span className={product.amount < 5 ? 'low' : ''}>{product.amount} unidades</span>
                       </p>
                     </div>
-                    <div className="admin-product-list-actions">
-                      <Link 
-                        to={`/administracion/productos/editar/${product.id}`}
-                        className="admin-btn admin-btn-edit"
-                      >
-                        ✏️ Editar
-                      </Link>
-                      <button 
-                        onClick={() => handleDeleteClick(product)}
-                        className="admin-btn admin-btn-delete"
-                      >
-                        🗑️ Eliminar
-                      </button>
-                    </div>
+                    {!editMode && (
+                      <div className="admin-product-list-actions">
+                        <Link 
+                          to={`/administracion/productos/editar/${product.id}`}
+                          className="admin-btn admin-btn-edit"
+                        >
+                          ✏️ Editar
+                        </Link>
+                        <button 
+                          onClick={() => handleDeleteClick(product)}
+                          className="admin-btn admin-btn-delete"
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
+              </div>
               </div>
             ))}
           </div>
