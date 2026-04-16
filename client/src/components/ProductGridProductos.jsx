@@ -223,19 +223,36 @@ export default function ProductPage({ title = "Todos los Productos" }) {
     setSavingOrder(true);
     
     try {
-      // Actualizar posiciones localmente primero
-      const updatedProducts = filtered.map((p, index) => ({
-        ...p,
+      // Preparar actualizaciones
+      const updates = filtered.map((p, index) => ({
+        id: p.id,
         position: index + 1
       }));
       
-      // Aquí podrías hacer un batch update al backend
-      // Por ahora solo actualizamos el estado local
+      // Enviar al backend
+      const response = await fetch(`${apiUrl}/api/productos`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al guardar en el servidor');
+      }
+      
+      const result = await response.json();
+      console.log('Guardado:', result);
+      
+      // Actualizar estado local
       setProducts(prev => {
         const newProducts = [...prev];
-        updatedProducts.forEach(updated => {
-          const idx = newProducts.findIndex(p => p.id === updated.id);
-          if (idx !== -1) newProducts[idx] = updated;
+        updates.forEach(update => {
+          const idx = newProducts.findIndex(p => p.id === update.id);
+          if (idx !== -1) {
+            newProducts[idx] = { ...newProducts[idx], position: update.position };
+          }
         });
         return newProducts;
       });
@@ -243,7 +260,8 @@ export default function ProductPage({ title = "Todos los Productos" }) {
       setEditMode(false);
       alert('Orden guardado correctamente');
     } catch (err) {
-      alert('Error al guardar el orden');
+      console.error('Error:', err);
+      alert('Error al guardar: ' + err.message);
     } finally {
       setSavingOrder(false);
     }

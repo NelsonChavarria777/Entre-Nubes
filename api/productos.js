@@ -28,19 +28,73 @@ const productos = [
 
 export default function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET");
+  res.setHeader("Access-Control-Allow-Methods", "GET, PUT, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  
+  // Manejar preflight OPTIONS
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
   
   const { id } = req.query;
   
-  // Si se proporciona un ID, buscar ese producto específico
-  if (id) {
-    const product = productos.find(p => p.id === parseInt(id));
-    if (!product) {
-      return res.status(404).json({ error: "Producto no encontrado" });
+  // GET - Obtener producto(s)
+  if (req.method === "GET") {
+    // Si se proporciona un ID, buscar ese producto específico
+    if (id) {
+      const product = productos.find(p => p.id === parseInt(id));
+      if (!product) {
+        return res.status(404).json({ error: "Producto no encontrado" });
+      }
+      return res.status(200).json(product);
     }
-    return res.status(200).json(product);
+    
+    // Si no hay ID, devolver todos los productos
+    return res.status(200).json(productos);
   }
   
-  // Si no hay ID, devolver todos los productos
-  res.status(200).json(productos);
+  // PUT/PATCH - Actualizar producto
+  if (req.method === "PUT" || req.method === "PATCH") {
+    const { position } = req.body || {};
+    
+    // Actualizar múltiples productos (bulk update para reordenamiento)
+    if (!id && Array.isArray(req.body)) {
+      req.body.forEach(update => {
+        const productIndex = productos.findIndex(p => p.id === update.id);
+        if (productIndex !== -1) {
+          productos[productIndex] = { 
+            ...productos[productIndex], 
+            ...update 
+          };
+        }
+      });
+      return res.status(200).json({ 
+        message: "Productos actualizados",
+        count: req.body.length 
+      });
+    }
+    
+    // Actualizar producto individual
+    if (id) {
+      const productIndex = productos.findIndex(p => p.id === parseInt(id));
+      if (productIndex === -1) {
+        return res.status(404).json({ error: "Producto no encontrado" });
+      }
+      
+      productos[productIndex] = { 
+        ...productos[productIndex], 
+        ...req.body 
+      };
+      
+      return res.status(200).json({
+        message: "Producto actualizado",
+        product: productos[productIndex]
+      });
+    }
+    
+    return res.status(400).json({ error: "Se requiere ID o array de productos" });
+  }
+  
+  // Método no permitido
+  return res.status(405).json({ error: "Método no permitido" });
 }

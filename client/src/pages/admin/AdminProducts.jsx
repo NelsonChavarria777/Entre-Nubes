@@ -109,25 +109,45 @@ function AdminProducts() {
     setSavingOrder(true);
     
     try {
-      // Actualizar posiciones localmente
+      // Preparar los productos con nuevas posiciones
       const updatedProducts = filteredProducts.map((p, index) => ({
-        ...p,
+        id: p.id,
         position: index + 1
       }));
       
+      // Enviar actualizaciones al backend
+      const response = await fetch(`${API_URL}/api/productos`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedProducts)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al actualizar posiciones');
+      }
+      
+      const result = await response.json();
+      console.log('Posiciones actualizadas:', result);
+      
+      // Actualizar estado local
       setProducts(prev => {
         const newProducts = [...prev];
-        updatedProducts.forEach(updated => {
-          const idx = newProducts.findIndex(p => p.id === updated.id);
-          if (idx !== -1) newProducts[idx] = updated;
+        updatedProducts.forEach(update => {
+          const idx = newProducts.findIndex(p => p.id === update.id);
+          if (idx !== -1) {
+            newProducts[idx] = { ...newProducts[idx], position: update.position };
+          }
         });
         return newProducts;
       });
       
       setEditMode(false);
-      alert('Orden guardado correctamente');
+      alert('Orden guardado correctamente. Los cambios se reflejarán en la página de productos.');
     } catch (err) {
-      alert('Error al guardar el orden');
+      console.error('Error:', err);
+      alert('Error al guardar el orden: ' + err.message);
     } finally {
       setSavingOrder(false);
     }
