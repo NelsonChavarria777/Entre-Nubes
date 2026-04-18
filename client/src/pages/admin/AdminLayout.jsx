@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './AdminLayout.css';
+import LogoEntreNubes from '../../assets/LogoEntreNubes.webp';
 
 function AdminLayout({ children, title }) {
   const { logout, user } = useAuth();
@@ -23,7 +24,13 @@ function AdminLayout({ children, title }) {
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
           <Link to="/" className="admin-sidebar-brand">
-            <span className="admin-brand-icon">☁️</span>
+            <img 
+              src={LogoEntreNubes} 
+              alt="Entre Nubes" 
+              className="admin-brand-img" 
+              width="32" 
+              height="32"
+            />
             <span className="admin-brand-text">Entre Nubes</span>
           </Link>
           <span className="admin-badge">Admin</span>

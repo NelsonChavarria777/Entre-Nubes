@@ -35,8 +35,11 @@
   text-decoration: none;
 }
 
-.admin-brand-icon {
-  font-size: 24px;
+.admin-brand-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .admin-brand-text {

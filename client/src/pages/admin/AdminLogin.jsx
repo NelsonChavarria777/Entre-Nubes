@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './AdminLogin.css';
+import LogoEntreNubes from '../../assets/LogoEntreNubes.webp';
 
 function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -37,7 +38,13 @@ function AdminLogin() {
       <div className="admin-login-container">
         <div className="admin-login-header">
           <div className="admin-logo">
-            <span className="admin-logo-icon">☁️</span>
+            <img 
+              src={LogoEntreNubes} 
+              alt="Entre Nubes" 
+              className="admin-logo-img" 
+              width="40" 
+              height="40"
+            />
             <span className="admin-logo-text">Entre Nubes</span>
           </div>
           <h1 className="admin-login-title">Panel de Administración</h1>
