@@ -15,7 +15,9 @@ import {
   Layers,
   FileCode,
   ShieldCheck,
-  Trash2
+  Trash2,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 
 export const ConfiguracionView = () => {
@@ -23,8 +25,10 @@ export const ConfiguracionView = () => {
     data, 
     addMetodoPago, 
     deleteMetodoPago,
+    toggleMetodoPago,
     addCategoriaGasto, 
     deleteCategoriaGasto,
+    toggleCategoriaGasto,
     handleReset, 
     handleExportJSON, 
     handleExportSQL, 
@@ -42,9 +46,17 @@ export const ConfiguracionView = () => {
     await deleteMetodoPago(id);
   };
 
+  const handleToggleMetodo = async (id, nombre, activo) => {
+    await toggleMetodoPago(id);
+  };
+
   const handleDeleteCategoria = async (id, nombre) => {
     if (!confirm(`¿Eliminar categoría "${nombre}"?`)) return;
     await deleteCategoriaGasto(id);
+  };
+
+  const handleToggleCategoria = async (id, nombre, activo) => {
+    await toggleCategoriaGasto(id);
   };
 
   const generatedSQL = generateSQLScript(data);
@@ -163,6 +175,13 @@ export const ConfiguracionView = () => {
                   <div className="text-[10px] text-zinc-500">{m.Descripcion}</div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleToggleMetodo(m.MetodoPagoID, m.Metodo, m.Activo)}
+                    className={`p-1 rounded transition-colors cursor-pointer ${m.Activo ? 'text-emerald-400 hover:bg-emerald-950/40' : 'text-zinc-500 hover:text-amber-400 hover:bg-amber-950/40'}`}
+                    title={m.Activo ? 'Inactivar método' : 'Activar método'}
+                  >
+                    {m.Activo ? <ToggleRight className="h-3.5 w-3.5" /> : <ToggleLeft className="h-3.5 w-3.5" />}
+                  </button>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${m.Activo ? 'bg-emerald-950 text-emerald-300' : 'bg-zinc-800 text-zinc-500'}`}>
                     {m.Activo ? 'Activo' : 'Inactivo'}
                   </span>
@@ -224,6 +243,13 @@ export const ConfiguracionView = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-zinc-500 font-mono">#{cat.CategoriaGastoID}</span>
+                  <button
+                    onClick={() => handleToggleCategoria(cat.CategoriaGastoID, cat.Nombre, cat.Activo)}
+                    className={`p-1 rounded transition-colors cursor-pointer ${cat.Activo ? 'text-emerald-400 hover:bg-emerald-950/40' : 'text-zinc-500 hover:text-amber-400 hover:bg-amber-950/40'}`}
+                    title={cat.Activo ? 'Inactivar categoría' : 'Activar categoría'}
+                  >
+                    {cat.Activo ? <ToggleRight className="h-3.5 w-3.5" /> : <ToggleLeft className="h-3.5 w-3.5" />}
+                  </button>
                   <button
                     onClick={() => handleDeleteCategoria(cat.CategoriaGastoID, cat.Nombre)}
                     className="p-1 rounded text-zinc-500 hover:text-rose-400 hover:bg-rose-950/40 cursor-pointer"

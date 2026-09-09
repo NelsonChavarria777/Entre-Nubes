@@ -56,7 +56,11 @@ export const executeSQL = async (sqlStatement) => {
       maxBuffer: 1024 * 1024 * 20,
       encoding: 'utf8'
     });
-    return stdout.trim();
+    const out = stdout.trim();
+    if (/^Msg\s+\d+/i.test(out) || /error/i.test(out)) {
+      throw new Error(out);
+    }
+    return out;
   } catch (error) {
     console.error('Error executing executeSQL:', error.message);
     throw error;

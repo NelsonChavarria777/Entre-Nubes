@@ -359,6 +359,12 @@ app.post('/api/ventas', async (req, res) => {
 
         INSERT INTO MovimientosStock (ProductoID, TipoMovimiento, Cantidad, VentaID, Motivo, Observaciones)
         VALUES (${num(it.ProductoID)}, 'SALIDA', ${num(it.cantidad)}, @NewVentaID, CONCAT('Venta #', @NewVentaID), ${esc(clienteID ? 'Cliente #' + clienteID : 'Venta mostrador')});
+
+        -- Update InventarioLiquido if product has ContenidoML (decanter)
+        UPDATE InventarioLiquido SET
+          SalidasML = SalidasML + (${num(it.cantidad)} * (SELECT ISNULL(ContenidoML, 0) FROM Productos WHERE ProductoID = ${num(it.ProductoID)})),
+          FechaActualizacion = GETDATE()
+        WHERE ProductoID = ${num(it.ProductoID)};
       `;
     }
 
@@ -552,6 +558,66 @@ app.post('/api/contactos/clientes', async (req, res) => {
   }
 });
 
+app.delete('/api/contactos/clientes/:id', async (req, res) => {
+  try {
+    await executeSQL(`DELETE FROM Clientes WHERE ClienteID = ${num(req.params.id)};`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.delete('/api/contactos/proveedores/:id', async (req, res) => {
+  try {
+    await executeSQL(`DELETE FROM Proveedores WHERE ProveedorID = ${num(req.params.id)};`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.patch('/api/contactos/clientes/:id/toggle', async (req, res) => {
+  try {
+    await executeSQL(`UPDATE Clientes SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END WHERE ClienteID = ${num(req.params.id)};`);
+    const row = await queryJSON(`SELECT ClienteID, Nombre, Activo FROM Clientes WHERE ClienteID = ${num(req.params.id)};`);
+    res.json({ ok: true, data: row[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.patch('/api/contactos/proveedores/:id/toggle', async (req, res) => {
+  try {
+    await executeSQL(`UPDATE Proveedores SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END WHERE ProveedorID = ${num(req.params.id)};`);
+    const row = await queryJSON(`SELECT ProveedorID, Nombre, Activo FROM Proveedores WHERE ProveedorID = ${num(req.params.id)};`);
+    res.json({ ok: true, data: row[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.put('/api/contactos/clientes/:id', async (req, res) => {
+  try {
+    const c = req.body;
+    await executeSQL(`UPDATE Clientes SET Nombre = ${esc(c.Nombre)}, Telefono = ${esc(c.Telefono)}, Email = ${esc(c.Email)}, Direccion = ${esc(c.Direccion)}, Notas = ${esc(c.Notas)}, Activo = ${esc(c.Activo ? 1 : 0)} WHERE ClienteID = ${num(req.params.id)};`);
+    const row = await queryJSON(`SELECT * FROM Clientes WHERE ClienteID = ${num(req.params.id)};`);
+    res.json({ ok: true, data: row[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.put('/api/contactos/proveedores/:id', async (req, res) => {
+  try {
+    const p = req.body;
+    await executeSQL(`UPDATE Proveedores SET Nombre = ${esc(p.Nombre)}, Telefono = ${esc(p.Telefono)}, Email = ${esc(p.Email)}, Direccion = ${esc(p.Direccion)}, TipoProveedor = ${esc(p.TipoProveedor)}, Notas = ${esc(p.Notas)}, Activo = ${esc(p.Activo ? 1 : 0)} WHERE ProveedorID = ${num(req.params.id)};`);
+    const row = await queryJSON(`SELECT * FROM Proveedores WHERE ProveedorID = ${num(req.params.id)};`);
+    res.json({ ok: true, data: row[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // --- CATALOGOS ---
 app.post('/api/catalogos/metodos', async (req, res) => {
   try {
@@ -583,10 +649,10 @@ app.post('/api/catalogos/categorias', async (req, res) => {
   }
 });
 
-// --- DELETE CATÁLOGOS ---
+// --- DELETE CATÁLOGOS (Hard Delete) ---
 app.delete('/api/catalogos/metodos/:id', async (req, res) => {
   try {
-    await executeSQL(`UPDATE MetodosPago SET Activo = 0 WHERE MetodoPagoID = ${num(req.params.id)};`);
+    await executeSQL(`DELETE FROM MetodosPago WHERE MetodoPagoID = ${num(req.params.id)};`);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
@@ -595,8 +661,28 @@ app.delete('/api/catalogos/metodos/:id', async (req, res) => {
 
 app.delete('/api/catalogos/categorias/:id', async (req, res) => {
   try {
-    await executeSQL(`UPDATE CategoriasGastos SET Activo = 0 WHERE CategoriaGastoID = ${num(req.params.id)};`);
+    await executeSQL(`DELETE FROM CategoriasGastos WHERE CategoriaGastoID = ${num(req.params.id)};`);
     res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.patch('/api/catalogos/metodos/:id/toggle', async (req, res) => {
+  try {
+    await executeSQL(`UPDATE MetodosPago SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END WHERE MetodoPagoID = ${num(req.params.id)};`);
+    const row = await queryJSON(`SELECT MetodoPagoID, Metodo, Activo FROM MetodosPago WHERE MetodoPagoID = ${num(req.params.id)};`);
+    res.json({ ok: true, data: row[0] });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.patch('/api/catalogos/categorias/:id/toggle', async (req, res) => {
+  try {
+    await executeSQL(`UPDATE CategoriasGastos SET Activo = CASE WHEN Activo = 1 THEN 0 ELSE 1 END WHERE CategoriaGastoID = ${num(req.params.id)};`);
+    const row = await queryJSON(`SELECT CategoriaGastoID, Nombre, Activo FROM CategoriasGastos WHERE CategoriaGastoID = ${num(req.params.id)};`);
+    res.json({ ok: true, data: row[0] });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
   }

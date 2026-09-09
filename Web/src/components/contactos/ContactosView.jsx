@@ -11,15 +11,21 @@ import {
   Edit3, 
   Trash2, 
   Search,
-  X
+  X,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 
 export const ContactosView = () => {
   const { 
     data, 
     addCliente, 
+    deleteCliente,
+    toggleCliente,
     updateCliente, 
     addProveedor, 
+    deleteProveedor,
+    toggleProveedor,
     updateProveedor 
   } = useApp();
 
@@ -86,6 +92,16 @@ export const ContactosView = () => {
     }
 
     setIsModalOpen(false);
+  };
+
+  const handleDeleteCliente = async (id, nombre) => {
+    if (!confirm(`¿Eliminar cliente "${nombre}"?`)) return;
+    await deleteCliente(id);
+  };
+
+  const handleDeleteProveedor = async (id, nombre) => {
+    if (!confirm(`¿Eliminar proveedor "${nombre}"?`)) return;
+    await deleteProveedor(id);
   };
 
   const filteredClientes = data.Clientes.filter(c => 
@@ -171,13 +187,32 @@ export const ContactosView = () => {
                       </span>
                     )}
                   </div>
-                  <button
-                    onClick={() => openEditModal(item)}
-                    className="p-1 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer"
-                    title="Editar"
-                  >
-                    <Edit3 className="h-3.5 w-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => openEditModal(item)}
+                      className="p-1 rounded text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer"
+                      title="Editar"
+                    >
+                      <Edit3 className="h-3.5 w-3.5" />
+                    </button>
+                    {activeTab === 'clientes' ? (
+                      <button
+                        onClick={() => handleDeleteCliente(id, item.Nombre)}
+                        className="p-1 rounded text-zinc-500 hover:text-rose-400 hover:bg-rose-950/40 cursor-pointer"
+                        title="Eliminar cliente"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDeleteProveedor(id, item.Nombre)}
+                        className="p-1 rounded text-zinc-500 hover:text-rose-400 hover:bg-rose-950/40 cursor-pointer"
+                        title="Eliminar proveedor"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="mt-3 space-y-1.5 text-xs text-zinc-300">

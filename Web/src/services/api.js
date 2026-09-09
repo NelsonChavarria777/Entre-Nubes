@@ -164,6 +164,44 @@ export const api = {
     return await res.json();
   },
 
+  deleteCliente: async (id) => {
+    const res = await fetch(`${API_BASE}/contactos/clientes/${id}`, { method: 'DELETE' });
+    return await res.json();
+  },
+
+  deleteProveedor: async (id) => {
+    const res = await fetch(`${API_BASE}/contactos/proveedores/${id}`, { method: 'DELETE' });
+    return await res.json();
+  },
+
+  toggleCliente: async (id) => {
+    const res = await fetch(`${API_BASE}/contactos/clientes/${id}/toggle`, { method: 'PATCH' });
+    return await res.json();
+  },
+
+  toggleProveedor: async (id) => {
+    const res = await fetch(`${API_BASE}/contactos/proveedores/${id}/toggle`, { method: 'PATCH' });
+    return await res.json();
+  },
+
+  updateCliente: async (id, cli) => {
+    const res = await fetch(`${API_BASE}/contactos/clientes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cli)
+    });
+    return await res.json();
+  },
+
+  updateProveedor: async (id, prov) => {
+    const res = await fetch(`${API_BASE}/contactos/proveedores/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prov)
+    });
+    return await res.json();
+  },
+
   // Catálogos
   createMetodoPago: async (metodo) => {
     const res = await fetch(`${API_BASE}/catalogos/metodos`, {
@@ -190,6 +228,16 @@ export const api = {
 
   deleteCategoriaGasto: async (id) => {
     const res = await fetch(`${API_BASE}/catalogos/categorias/${id}`, { method: 'DELETE' });
+    return await res.json();
+  },
+
+  toggleMetodoPago: async (id) => {
+    const res = await fetch(`${API_BASE}/catalogos/metodos/${id}/toggle`, { method: 'PATCH' });
+    return await res.json();
+  },
+
+  toggleCategoriaGasto: async (id) => {
+    const res = await fetch(`${API_BASE}/catalogos/categorias/${id}/toggle`, { method: 'PATCH' });
     return await res.json();
   }
 };

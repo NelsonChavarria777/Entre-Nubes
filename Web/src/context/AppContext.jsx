@@ -330,8 +330,32 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const updateProveedor = (id, prov) => {
-    showToast('Proveedor actualizado');
+  const deleteProveedor = async (id) => {
+    try {
+      if (dbStatus.connected) {
+        await api.deleteProveedor(id);
+        await refreshFromSQL();
+        showToast('Proveedor eliminado de SQL Server');
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateProveedor = async (id, prov) => {
+    try {
+      if (dbStatus.connected) {
+        const res = await api.updateProveedor(id, prov);
+        if (res.ok) {
+          await refreshFromSQL();
+          showToast('Proveedor actualizado en SQL Server');
+          return;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const addCliente = async (cli) => {
@@ -349,8 +373,62 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const updateCliente = (id, cli) => {
-    showToast('Cliente actualizado');
+  const deleteCliente = async (id) => {
+    try {
+      if (dbStatus.connected) {
+        await api.deleteCliente(id);
+        await refreshFromSQL();
+        showToast('Cliente eliminado de SQL Server');
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleCliente = async (id) => {
+    try {
+      if (dbStatus.connected) {
+        const res = await api.toggleCliente(id);
+        if (res.ok && res.data) {
+          await refreshFromSQL();
+          showToast(`Cliente ${res.data.Activo ? 'activado' : 'inactivado'}`);
+        }
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleProveedor = async (id) => {
+    try {
+      if (dbStatus.connected) {
+        const res = await api.toggleProveedor(id);
+        if (res.ok && res.data) {
+          await refreshFromSQL();
+          showToast(`Proveedor ${res.data.Activo ? 'activado' : 'inactivado'}`);
+        }
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateCliente = async (id, cli) => {
+    try {
+      if (dbStatus.connected) {
+        const res = await api.updateCliente(id, cli);
+        if (res.ok) {
+          await refreshFromSQL();
+          showToast('Cliente actualizado en SQL Server');
+          return;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // --- CATALOGOS ---
@@ -403,6 +481,36 @@ export const AppProvider = ({ children }) => {
         await api.deleteCategoriaGasto(id);
         await refreshFromSQL();
         showToast('Categoría de gasto eliminada de SQL Server');
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleMetodoPago = async (id) => {
+    try {
+      if (dbStatus.connected) {
+        const res = await api.toggleMetodoPago(id);
+        if (res.ok && res.data) {
+          await refreshFromSQL();
+          showToast(`Método ${res.data.Activo ? 'activado' : 'inactivado'}`);
+        }
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleCategoriaGasto = async (id) => {
+    try {
+      if (dbStatus.connected) {
+        const res = await api.toggleCategoriaGasto(id);
+        if (res.ok && res.data) {
+          await refreshFromSQL();
+          showToast(`Categoría ${res.data.Activo ? 'activada' : 'inactivada'}`);
+        }
         return;
       }
     } catch (e) {
@@ -470,13 +578,19 @@ export const AppProvider = ({ children }) => {
       deleteGasto,
       addMovimientoStock,
       addProveedor,
+      deleteProveedor,
+      toggleProveedor,
       updateProveedor,
       addCliente,
+      deleteCliente,
+      toggleCliente,
       updateCliente,
       addMetodoPago,
       deleteMetodoPago,
+      toggleMetodoPago,
       addCategoriaGasto,
       deleteCategoriaGasto,
+      toggleCategoriaGasto,
       // Utilities
       handleReset,
       handleExportJSON,
