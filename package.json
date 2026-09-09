@@ -1,12 +1,12 @@
 {
-  "name": "efluvio",
+  "name": "entre-nubes",
   "version": "1.0.0",
-  "private": true,
-  "workspaces": ["Web", "Server"],
+  "type": "module",
   "scripts": {
-    "build": "cd Web && npm run build",
-    "install": "cd Web && npm install && cd ../Server && npm install",
-    "dev": "cd Web && npm run dev"
+    "build": "cd client && npm install && npm run build",
+    "start": "cd server && npm start"
   },
-  "dependencies": {}
+  "dependencies": {
+    "nodemailer": "^6.9.0"
+  }
 }

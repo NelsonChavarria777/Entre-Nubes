@@ -1,0 +1,13 @@
+{
+  "outputDirectory": "client/dist",
+  "rewrites": [
+    { "source": "/producto/(.*)", "destination": "/index.html" },
+    { "source": "/carrito", "destination": "/index.html" },
+    { "source": "/productos", "destination": "/index.html" },
+    { "source": "/contacto", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "VITE_API_URL": ""
+  }
+}
