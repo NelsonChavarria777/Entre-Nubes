@@ -1,0 +1,12 @@
+{
+  "name": "efluvio",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["Web", "Server"],
+  "scripts": {
+    "build": "cd Web && npm run build",
+    "install": "cd Web && npm install && cd ../Server && npm install",
+    "dev": "cd Web && npm run dev"
+  },
+  "dependencies": {}
+}
